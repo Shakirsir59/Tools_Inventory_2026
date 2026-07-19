@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>North Region Unified Master Tracker v3.0</title>
+    <title>North Region Unified Master Tracker v3.2</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
@@ -24,7 +24,7 @@
     <div class="max-w-7xl mx-auto bg-white p-6 rounded-2xl shadow-xs flex flex-col lg:flex-row justify-between items-center mb-6 gap-4 border border-slate-100">
         <div>
             <div class="flex items-center gap-2">
-                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">v3.0 Live Engine</span>
+                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">v3.2 Real-time Validation Engine</span>
                 <div id="roleBadge" class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
                     <i class="fa-solid fa-eye"></i> Viewer Mode
                 </div>
@@ -32,7 +32,7 @@
             <h1 class="text-2xl font-black text-slate-800 mt-1 flex items-center gap-2">
                 <i class="fa-solid fa-shield-halved text-indigo-600"></i> North Region Asset Command Center
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">Real-time Local-Sync & Audit Trail Mapping Dashboard</p>
+            <p class="text-xs text-slate-500 mt-0.5">Real-time Local-Sync & Conflict Prevention System</p>
         </div>
         
         <!-- Controls Console -->
@@ -72,11 +72,11 @@
                 <div id="countHardware" class="text-2xl font-black text-rose-600">0</div>
             </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-xs border-2 border-amber-400 flex items-center gap-4 bg-amber-50/20">
-            <div class="p-3 bg-amber-100 rounded-xl text-amber-700"><i class="fa-solid fa-triangle-exclamation text-xl animate-bounce"></i></div>
+        <div class="bg-white p-5 rounded-2xl shadow-xs border-2 border-red-500 flex items-center gap-4 bg-red-50/20">
+            <div class="p-3 bg-red-100 rounded-xl text-red-700"><i class="fa-solid fa-triangle-exclamation text-xl animate-bounce"></i></div>
             <div>
-                <span class="text-[11px] font-bold text-amber-800 uppercase tracking-wider block">Deficiencies & Duplicates</span>
-                <div id="countDeficiencies" class="text-2xl font-black text-amber-700">0</div>
+                <span class="text-[11px] font-bold text-red-800 uppercase tracking-wider block">Duplicates & Deficiencies</span>
+                <div id="countDeficiencies" class="text-2xl font-black text-red-700">0</div>
             </div>
         </div>
     </div>
@@ -85,13 +85,13 @@
     <div class="max-w-7xl mx-auto bg-white p-4 rounded-2xl shadow-xs mb-6 border border-slate-100 flex flex-col md:flex-row gap-3">
         <div class="relative flex-1">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-            <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search via Employee Name, Serial, Model, IMEI, Status..." 
+            <input type="text" id="searchInput" oninput="filterCards()" placeholder="Search via Employee Name, SIM number, Serial, Model, IMEI..." 
                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500 font-medium">
         </div>
         <div class="flex gap-2">
             <select id="providerFilter" onchange="filterCards()" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
                 <option value="ALL">All Items</option>
-                <option value="SIM">Zain SIM Cards Only</option>
+                <option value="SIM">SIM Cards Only</option>
                 <option value="Laptop">Laptops Only</option>
                 <option value="Huawei">Huawei Gear Only</option>
                 <option value="Rigger">Rigger Safety Only</option>
@@ -106,12 +106,12 @@
         <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider w-full mb-4 text-left flex items-center gap-1">
             <i class="fa-solid fa-chart-pie text-indigo-500"></i> Allocation Distribution Analysis
         </h3>
-        <div class="w-full md:w-[450px] h-[300px]">
+        <div class="w-full md:w-[450px] h-[250px]">
             <canvas id="telecomPieChart"></canvas>
         </div>
     </div>
 
-    <!-- Main Live Dynamic Grid Grid -->
+    <!-- Main Live Dynamic Grid -->
     <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-xs font-black text-slate-400 uppercase tracking-wider">Personnel Ledger Repositories</h2>
@@ -125,7 +125,7 @@
     <!-- MODAL SPECIFICATION EXTENSION INTERFACE -->
     <div id="editModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50 transition-opacity duration-200">
         <div class="modal-overlay absolute w-full h-full bg-slate-900/60 backdrop-blur-xs"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded-2xl shadow-2xl z-50 overflow-y-auto max-h-[90vh] border border-slate-100">
+        <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded-2xl shadow-2xl z-50 overflow-y-auto max-h-[95vh] border border-slate-100">
             
             <!-- Modal Head -->
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center rounded-t-2xl">
@@ -137,7 +137,13 @@
             </div>
 
             <!-- Modal Body Area -->
-            <div class="p-6 space-y-6 custom-scrollbar overflow-y-auto max-h-[60vh]">
+            <div class="p-6 space-y-6 custom-scrollbar overflow-y-auto max-h-[65vh]">
+                
+                <!-- CRITICAL ALERTS POPUP AREA -->
+                <div id="modalAlertBox" class="hidden bg-red-100 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1">
+                    <!-- Duplicate details dynamically go here -->
+                </div>
+
                 <!-- Telecom Box -->
                 <div>
                     <h4 class="text-xs font-black uppercase text-indigo-600 mb-3 flex items-center gap-1"><i class="fa-solid fa-laptop"></i> IT & Hardware Group</h4>
@@ -162,8 +168,8 @@
                             <option value="Telecom Hardware">Telecom Hardware</option>
                             <option value="Rigger Safety">Rigger Safety</option>
                         </select>
-                        <input type="text" id="newItemName" placeholder="Item Label Name" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-medium">
-                        <input type="text" id="newSerial" placeholder="Serial/IMEI Identifier" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-mono">
+                        <input type="text" id="newItemName" placeholder="Item Name (e.g. Zain SIM)" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-medium">
+                        <input type="text" id="newSerial" placeholder="Serial/SIM/IMEI Number" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-mono">
                         <select id="newStatus" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-semibold">
                             <option value="Working">Working</option>
                             <option value="Need">Need</option>
@@ -171,8 +177,8 @@
                             <option value="Not Issued">Not Issued</option>
                         </select>
                     </div>
-                    <button onclick="addNewAssetItem()" class="mt-3 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition">
-                        <i class="fa-solid fa-plus"></i> Inject Into Repository
+                    <button onclick="addNewAssetItem()" class="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition">
+                        <i class="fa-solid fa-plus"></i> Inject Into Repository & Check Duplicates
                     </button>
                 </div>
 
@@ -193,7 +199,7 @@
 
     <!-- CORE INTEGRATED DATABASE & UI RENDERING ENGINE -->
     <script>
-        // Initial fallback seed database structure (Used if LocalStorage is clear)
+        // Core seed data mapping
         const initialSeedData = [
             {"id":0,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T3F","status":"Working"},
             {"id":1,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working"},
@@ -236,66 +242,7 @@
             {"id":38,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122784532","status":"Working"},
             {"id":39,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei Mate 30 Pro","serial":"862781041935423","status":"Damage"},
             {"id":40,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448269","status":"Working"},
-            {"id":41,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446971","status":"Working"},
-            {"id":42,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Anker USB Hub","serial":"N/A","status":"Working"},
-            {"id":43,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working"},
-            {"id":44,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working"},
-            {"id":45,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working"},
-            {"id":46,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
-            {"id":47,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
-            {"id":48,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Car Inverter","serial":"1","status":"Working"},
-            {"id":49,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Elite Book","serial":"5CG0462CY2","status":"Working"},
-            {"id":50,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Charger","serial":"1","status":"Working"},
-            {"id":51,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},
-            {"id":52,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448818","status":"Working"},
-            {"id":53,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592449627","status":"Working"},
-            {"id":54,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448924","status":"Working"},
-            {"id":55,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446963","status":"Working"},
-            {"id":56,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Kensington USB Hub","serial":"1","status":"Working"},
-            {"id":57,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Anker USB Hub","serial":"1","status":"Working"},
-            {"id":58,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044497160","status":"Working"},
-            {"id":59,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044529418","status":"Working"},
-            {"id":60,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122742953","status":"Working"},
-            {"id":61,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Samsung S23","serial":"355928813629956","status":"Working"},
-            {"id":62,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Belt","serial":"1","status":"Working"},
-            {"id":63,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Shoe","serial":"1","status":"Working"},
-            {"id":64,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working"},
-            {"id":65,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working"},
-            {"id":66,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Working"},
-            {"id":67,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
-            {"id":68,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
-            {"id":69,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Need"},
-            {"id":70,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Car Inverter","serial":"1","status":"Working"},
-            {"id":71,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"HP Elite Book 840 G8","serial":"5CG2138VYF","status":"Working"},
-            {"id":72,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working"},
-            {"id":73,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
-            {"id":74,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"Zain SIM","serial":"592446849","status":"Working"},
-            {"id":75,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"Zain SIM","serial":"592448969","status":"Working"},
-            {"id":76,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"HP Elite Book 840 G8","serial":"5CG2138WDS","status":"Working"},
-            {"id":77,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working"},
-            {"id":78,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
-            {"id":79,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"Zain SIM","serial":"592448592","status":"Working"},
-            {"id":80,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"HP Laptop","serial":"5CG2471J9M","status":"Working"},
-            {"id":81,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Tools Bag","serial":"Missing","status":"Need"},
-            {"id":82,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075246733","status":"Working"},
-            {"id":83,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075362621","status":"Working"},
-            {"id":84,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075363660","status":"Working"},
-            {"id":85,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075363009","status":"Working"},
-            {"id":86,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446936","status":"Working"},
-            {"id":87,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446923","status":"Working"},
-            {"id":88,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446921","status":"Working"},
-            {"id":89,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044531463","status":"Working"},
-            {"id":90,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Ethernet Type C","serial":"N/A","status":"Working"},
-            {"id":91,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working"},
-            {"id":92,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung S23","serial":"N/A","status":"Working"},
-            {"id":93,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working"},
-            {"id":94,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working"},
-            {"id":95,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working"},
-            {"id":96,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Working"},
-            {"id":97,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
-            {"id":98,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
-            {"id":99,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working"},
-            {"id":100,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working"}
+            {"id":41,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446971","status":"Working"}
         ];
 
         let masterInventory = [];
@@ -304,9 +251,7 @@
         let duplicateSerialsSet = new Set();
         let isAdminAuthorized = false;
 
-        // Initialize App State
         function initializeCoreEngine() {
-            // Option 1 Check: Read state from LocalStorage for persistence
             const localStored = localStorage.getItem('NORTH_REGION_MASTER_DATA');
             if (localStored) {
                 masterInventory = JSON.parse(localStored);
@@ -322,15 +267,14 @@
             document.getElementById('syncStatus').innerText = "Changes Synced Locally";
             setTimeout(() => {
                 document.getElementById('syncStatus').innerText = "Engine Live Synchronized";
-            }, 2500);
+            }, 1500);
         }
 
-        // Authentication Controller
         function toggleAdminAuth() {
             if (isAdminAuthorized) {
                 isAdminAuthorized = false;
                 document.getElementById('authBtn').innerHTML = `<i class="fa-solid fa-lock"></i> Authorize Admin Mode`;
-                document.getElementById('authBtn').className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-xl font-bold cursor-pointer transition";
+                document.getElementById('authBtn').className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-xl font-bold cursor-pointer transition shadow-xs";
                 document.getElementById('roleBadge').innerHTML = `<i class="fa-solid fa-eye"></i> Viewer Mode`;
                 document.getElementById('roleBadge').className = "bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1";
                 evaluateDataStates();
@@ -339,7 +283,7 @@
                 if (passwordInput === "Admin@North2026") {
                     isAdminAuthorized = true;
                     document.getElementById('authBtn').innerHTML = `<i class="fa-solid fa-lock-open"></i> Revoke Admin Rights`;
-                    document.getElementById('authBtn').className = "bg-rose-600 text-white text-xs px-4 py-2 rounded-xl font-bold cursor-pointer transition";
+                    document.getElementById('authBtn').className = "bg-rose-600 text-white text-xs px-4 py-2 rounded-xl font-bold cursor-pointer transition shadow-xs";
                     document.getElementById('roleBadge').innerHTML = `<i class="fa-solid fa-user-gear"></i> System Administrator`;
                     document.getElementById('roleBadge').className = "bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1";
                     evaluateDataStates();
@@ -356,11 +300,13 @@
             renderPieChart();
         }
 
+        // Deep scanner engine for duplicate data logs mapping
         function findDuplicateSerials() {
             duplicateSerialsSet.clear();
             const counts = {};
             masterInventory.forEach(i => {
                 const s = i.serial ? i.serial.trim().toLowerCase() : "";
+                // Ignore general non-unique placeholders
                 if (s && s !== "n/a" && s !== "1" && s !== "old" && s !== "missing") {
                     counts[s] = (counts[s] || 0) + 1;
                 }
@@ -403,10 +349,10 @@
                     const isDup = i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase());
 
                     telecomHTML += `
-                        <div class="flex justify-between items-center bg-slate-50/70 p-2 rounded-xl border ${isDup ? 'border-red-300 bg-red-50/60' : 'border-slate-100'} text-xs">
+                        <div class="flex justify-between items-center bg-slate-50/70 p-2 rounded-xl border ${isDup ? 'border-red-400 bg-red-50' : 'border-slate-100'} text-xs">
                             <div>
-                                <div class="font-bold text-slate-700 text-[11px]">${i.item} ${isDup ? '<span class="text-red-600 font-black">[⚠️ DUP]</span>':''}</div>
-                                <div class="text-[10px] font-mono ${isDup ? 'text-red-600 font-bold' : 'text-slate-400'}">S/N: ${i.serial}</div>
+                                <div class="font-bold text-slate-700 text-[11px]">${i.item} ${isDup ? '<span class="text-red-600 font-black text-[9px] bg-red-100 px-1 rounded-xs">[⚠️ DUP]</span>':''}</div>
+                                <div class="text-[10px] font-mono ${isDup ? 'text-red-700 font-bold' : 'text-slate-400'}">S/N: ${i.serial}</div>
                             </div>
                             <span class="${stColor} text-[9px] font-black px-2 py-0.5 rounded-md">${i.status}</span>
                         </div>
@@ -417,24 +363,23 @@
                 rigger.forEach(i => {
                     const isDup = i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase());
                     let rClass = i.status === 'Need' ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-amber-50 text-amber-800 border-amber-200';
-                    if (isDup) rClass = 'bg-red-100 text-red-900 border-red-300 font-bold';
+                    if (isDup) rClass = 'bg-red-100 text-red-900 border-red-400 font-bold';
 
                     riggerHTML += `<span class="${rClass} border text-[10px] px-2 py-1 rounded-lg m-0.5 inline-block">${i.item}: ${i.serial} ${isDup ? '⚠️':''}</span>`;
                 });
 
-                let cardBorder = 'border-slate-200/80';
-                if (hasIssue) cardBorder = 'border-l-4 border-l-rose-500 border-slate-200 shadow-xs';
-                if (hasDup) cardBorder = 'border-2 border-orange-500 shadow-md bg-orange-50/5';
+                let cardBorder = 'border-slate-200';
+                if (hasIssue) cardBorder = 'border-l-4 border-l-rose-500 border-slate-200';
+                if (hasDup) cardBorder = 'border-2 border-red-500 bg-red-50/5';
 
                 container.innerHTML += `
                     <div class="card bg-white p-5 rounded-2xl border ${cardBorder} flex flex-col justify-between transition hover:shadow-md" 
-                         data-name="${emp.toLowerCase()}" 
-                         data-hasdup="${hasDup}"
-                         data-summary="${items.map(i=>i.item+' '+i.serial).join(' ').toLowerCase()}">
+                         data-employee="${emp.toLowerCase()}" 
+                         data-hasdup="${hasDup}">
                         <div>
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 class="font-bold text-slate-800 text-base tracking-tight">${emp}</h3>
+                                    <h3 class="font-bold text-slate-800 text-base tracking-tight card-emp-name">${emp}</h3>
                                     <span class="text-[10px] text-slate-400 font-mono uppercase bg-slate-100 px-1.5 py-0.5 rounded-sm">ID: NORTH-${index+1}</span>
                                 </div>
                                 <button onclick="openModal('${emp}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-bold border border-indigo-100 cursor-pointer transition">
@@ -443,8 +388,8 @@
                             </div>
 
                             ${hasDup ? `
-                            <div class="mb-3 bg-orange-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 animate-pulse">
-                                <i class="fa-solid fa-circle-exclamation"></i> Duplicate Allocation Warning Flawed!
+                            <div class="mb-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation animate-pulse"></i> Allocation Error: Duplicate Identifier Present!
                             </div>` : ''}
 
                             <div class="mt-4">
@@ -460,35 +405,43 @@
 
                         <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
                             <span class="text-[10px] font-bold text-slate-400 uppercase">Operational Index</span>
-                            <span class="font-bold ${hasDup ? 'text-orange-600' : (hasIssue ? 'text-rose-600':'text-emerald-600')}">
-                                ${hasDup ? 'Allocation Error' : (hasIssue ? 'Deficient State' : 'Operational Nominally')}
+                            <span class="font-bold ${hasDup ? 'text-red-600' : (hasIssue ? 'text-rose-600':'text-emerald-600')}">
+                                ${hasDup ? 'Duplicate Mismatch' : (hasIssue ? 'Deficient State' : 'Operational Nominally')}
                             </span>
                         </div>
                     </div>
                 `;
             });
+            // Re-trigger search matching pipeline to keep items focused
+            filterCards();
         }
 
-        // Option 2 Enhancement: Filter and Pipeline query analytics
+        // FIX: Deep Search Engine Strategy
         function filterCards() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
             const dropdown = document.getElementById('providerFilter').value;
 
             document.querySelectorAll('.card').forEach(card => {
-                const name = card.getAttribute('data-name');
-                const summary = card.getAttribute('data-summary');
+                const empName = card.querySelector('.card-emp-name').innerText.toLowerCase();
                 const hasDup = card.getAttribute('data-hasdup') === 'true';
+                
+                // Fetch all internal numbers and item labels for rigorous checking
+                const internalText = Array.from(card.querySelectorAll('div, span')).map(el => el.innerText.toLowerCase()).join(' ');
 
-                let matchQuery = name.includes(query) || summary.includes(query);
+                let matchQuery = empName.includes(query) || internalText.includes(query);
                 let matchDropdown = true;
 
-                if (dropdown === "SIM") matchDropdown = summary.includes("sim");
-                if (dropdown === "Laptop") matchDropdown = summary.includes("book") || summary.includes("laptop");
-                if (dropdown === "Huawei") matchDropdown = summary.includes("huawei");
-                if (dropdown === "Rigger") matchDropdown = summary.includes("safety") || summary.includes("belt") || summary.includes("shoe") || summary.includes("spanner");
+                if (dropdown === "SIM") matchDropdown = internalText.includes("sim");
+                if (dropdown === "Laptop") matchDropdown = internalText.includes("book") || internalText.includes("laptop");
+                if (dropdown === "Huawei") matchDropdown = internalText.includes("huawei");
+                if (dropdown === "Rigger") matchDropdown = internalText.includes("safety") || internalText.includes("belt") || internalText.includes("shoe") || internalText.includes("spanner");
                 if (dropdown === "CONFLICT") matchDropdown = hasDup;
 
-                card.style.display = (matchQuery && matchDropdown) ? "flex" : "none";
+                if (matchQuery && matchDropdown) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
             });
         }
 
@@ -498,48 +451,14 @@
             filterCards();
         }
 
-        function renderPieChart() {
-            const trackingMap = {};
-            masterInventory.forEach(i => {
-                let name = i.item;
-                if(name.toLowerCase().includes("sim")) name = "Zain SIM Card";
-                if(name.toLowerCase().includes("p40")) name = "Huawei P40 Phone";
-                if(name.toLowerCase().includes("book")) name = "HP Workstation Laptop";
-                trackingMap[name] = (trackingMap[name] || 0) + 1;
-            });
-
-            const labels = Object.keys(trackingMap);
-            const dataValues = Object.values(trackingMap);
-
-            const ctx = document.getElementById('telecomPieChart').getContext('2d');
-            if (pieChartInstance) { pieChartInstance.destroy(); }
-
-            pieChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.slice(0, 5).concat(['Other Miscellaneous Safety Equipment']),
-                    datasets: [{
-                        data: dataValues.slice(0, 5).concat([dataValues.slice(5).reduce((a, b) => a + b, 0)]),
-                        backgroundColor: ['#6366f1', '#3b82f6', '#f59e0b', '#ec4899', '#10b981', '#94a3b8'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } } 
-                }
-            });
-        }
-
-        // --- EXTENDED ADMINISTRATIVE ACTIONS CONFIG ---
         function openModal(employeeName) {
             currentEditingEmployee = employeeName;
             document.getElementById('modalEmployeeName').innerText = `${isAdminAuthorized ? 'Configure Assets Mapping' : 'Read-Only Asset Inventory View'} : ${employeeName}`;
             document.getElementById('modalAuditLog').innerText = "Awaiting execution sequence inputs...";
-            
+            document.getElementById('modalAlertBox').className = "hidden"; // clear banner on open
+
             buildModalRows();
+            checkAndRenderModalAlerts();
 
             const modal = document.getElementById('editModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -566,12 +485,11 @@
                 const isDup = item.serial && duplicateSerialsSet.has(item.serial.trim().toLowerCase());
 
                 const rowHTML = `
-                    <div class="flex flex-col sm:flex-row gap-2 items-center ${isDup ? 'bg-red-50 border-red-300':'bg-slate-50/50 border-slate-200'} p-2 rounded-xl border text-xs">
+                    <div class="flex flex-col sm:flex-row gap-2 items-center ${isDup ? 'bg-red-50 border-red-400 p-2':'bg-slate-50/50 border-slate-200 p-2'} rounded-xl border text-xs w-full">
                         <div class="w-full sm:w-1/3">
                             <input type="text" value="${item.item}" ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'item', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full font-bold text-slate-700">
-                            ${isDup ? '<span class="text-[9px] text-red-600 font-black block mt-0.5">⚠️ Duplicate Mapping Detected!</span>' : ''}
                         </div>
-                        <input type="text" value="${item.serial}" ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'serial', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full sm:w-1/3 font-mono ${isDup ? 'text-red-700 font-bold border-red-400': 'text-slate-500'}">
+                        <input type="text" value="${item.serial}" ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'serial', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full sm:w-1/3 font-mono ${isDup ? 'text-red-700 font-bold border-red-300 bg-red-100/50': 'text-slate-500'}">
                         <select ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'status', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full sm:w-1/4 font-bold text-slate-600">
                             <option value="Working" ${item.status === 'Working' ? 'selected':''}>Working</option>
                             <option value="Need" ${item.status === 'Need' ? 'selected':''}>Need</option>
@@ -593,25 +511,44 @@
             });
         }
 
-        function updateItemField(id, field, value) {
-            const asset = masterInventory.find(i => i.id === id);
-            if (asset) {
-                const oldVal = asset[field];
-                asset[field] = value;
-                // Option 3 System Track: Print trace log line output
-                document.getElementById('modalAuditLog').innerText = `[Mutation Trace]: Modified object field properties from '${oldVal}' into '${value}'.`;
-                findDuplicateSerials();
+        // Scan current modal assets stack to throw detailed alerts banner
+        function checkAndRenderModalAlerts() {
+            const alertBox = document.getElementById('modalAlertBox');
+            alertBox.innerHTML = "";
+            let conflictsFound = [];
+
+            const currentItems = masterInventory.filter(i => i.employee === currentEditingEmployee);
+            
+            currentItems.forEach(item => {
+                const s = item.serial ? item.serial.trim().toLowerCase() : "";
+                if (s && s !== "n/a" && s !== "1" && s !== "old" && s !== "missing") {
+                    // Find matches belonging to OTHER employees
+                    const matches = masterInventory.filter(allI => allI.employee !== currentEditingEmployee && allI.serial && allI.serial.trim().toLowerCase() === s);
+                    if (matches.length > 0) {
+                        matches.forEach(m => {
+                            conflictsFound.push(`⚠️ CONFLICT: "${item.item}" (${item.serial}) is ALSO assigned to <span class="underline">${m.employee}</span>!`);
+                        });
+                    }
+                }
+            });
+
+            if (conflictsFound.length > 0) {
+                alertBox.className = "bg-red-100 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1 block";
+                conflictsFound.forEach(msg => {
+                    alertBox.innerHTML += `<div>${msg}</div>`;
+                });
+            } else {
+                alertBox.className = "hidden";
             }
         }
 
-        function removeItemLine(id) {
-            if (!isAdminAuthorized) return;
-            const itemObj = masterInventory.find(i => i.id === id);
-            if (confirm(`Purge element payload "${itemObj.item}" from personnel index structural logs?`)) {
-                masterInventory = masterInventory.filter(i => i.id !== id);
-                document.getElementById('modalAuditLog').innerText = `[Purge Trace]: Erased line node artifact ID mapping object explicitly.`;
+        function updateItemField(id, field, value) {
+            const asset = masterInventory.find(i => i.id === id);
+            if (asset) {
+                asset[field] = value;
+                document.getElementById('modalAuditLog').innerText = `[Mutation Trace]: Changed property values successfully.`;
                 findDuplicateSerials();
-                buildModalRows(); 
+                checkAndRenderModalAlerts();
             }
         }
 
@@ -626,8 +563,18 @@
             const stat = document.getElementById('newStatus').value;
 
             if (!name || !ser) {
-                alert("Error! Primary mapping parameters fields cannot evaluate empty.");
+                alert("Error! Primary parameters fields cannot be empty.");
                 return;
+            }
+
+            // Real-Time Validation Gatekeeper before injecting
+            const serClean = ser.toLowerCase();
+            if (serClean !== "n/a" && serClean !== "1" && serClean !== "old" && serClean !== "missing") {
+                const existingOwner = masterInventory.find(i => i.serial && i.serial.trim().toLowerCase() === serClean);
+                if (existingOwner) {
+                    // Flash notification popup message directly
+                    alert(`⚠️ SECURITY ALERT: DUPLICATE FOUND!\n\nThis Serial/SIM [ ${ser} ] is already assigned to: ${existingOwner.employee}.\n\nIt will be flagged as a conflict item in red color.`);
+                }
             }
 
             const nextId = masterInventory.length > 0 ? Math.max(...masterInventory.map(i => i.id)) + 1 : 0;
@@ -636,15 +583,63 @@
             document.getElementById('newItemName').value = "";
             document.getElementById('newSerial').value = "";
             
-            document.getElementById('modalAuditLog').innerText = `[Append Trace]: Successfully attached new object node "${name}" inside employee profile mappings stack.`;
+            document.getElementById('modalAuditLog').innerText = `[Append Trace]: Appended ${name} to repository stack.`;
+            
             findDuplicateSerials();
             buildModalRows();
+            checkAndRenderModalAlerts();
+        }
+
+        function removeItemLine(id) {
+            if (!isAdminAuthorized) return;
+            const itemObj = masterInventory.find(i => i.id === id);
+            if (confirm(`Purge element payload "${itemObj.item}"?`)) {
+                masterInventory = masterInventory.filter(i => i.id !== id);
+                findDuplicateSerials();
+                buildModalRows(); 
+                checkAndRenderModalAlerts();
+            }
         }
 
         function saveAllChanges() {
             saveToLocalStorage();
             evaluateDataStates();
             closeModal();
+        }
+
+        function renderPieChart() {
+            const trackingMap = {};
+            masterInventory.forEach(i => {
+                let name = i.item;
+                if(name.toLowerCase().includes("sim")) name = "SIM Cards";
+                if(name.toLowerCase().includes("p40") || name.toLowerCase().includes("note") || name.toLowerCase().includes("s22")) name = "Smartphones";
+                if(name.toLowerCase().includes("book") || name.toLowerCase().includes("laptop")) name = "Laptops";
+                trackingMap[name] = (trackingMap[name] || 0) + 1;
+            });
+
+            const labels = Object.keys(trackingMap);
+            const dataValues = Object.values(trackingMap);
+
+            const ctx = document.getElementById('telecomPieChart').getContext('2d');
+            if (pieChartInstance) { pieChartInstance.destroy(); }
+
+            pieChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels.slice(0, 4).concat(['Other Safety Tools']),
+                    datasets: [{
+                        data: dataValues.slice(0, 4).concat([dataValues.slice(4).reduce((a, b) => a + b, 0)]),
+                        backgroundColor: ['#6366f1', '#3b82f6', '#f59e0b', '#ef4444', '#10b981'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } } 
+                }
+            });
         }
 
         function exportToExcel() {
@@ -654,7 +649,7 @@
             });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", "North_Region_Live_Synthesized_Inventory.csv");
+            link.setAttribute("download", "North_Region_Live_Inventory.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
