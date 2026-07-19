@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>North Region Unified Master Tracker v3.2</title>
+    <title>North Region Unified Master Tracker v3.5</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js -->
@@ -16,6 +16,9 @@
         body.modal-active { overflow: hidden; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .metric-card { transition: all 0.2s ease; cursor: pointer; }
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .metric-active { border-color: #4f46e5 !important; ring: 2px; ring-color: #6366f1; background-color: #f5f3ff; }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -24,7 +27,7 @@
     <div class="max-w-7xl mx-auto bg-white p-6 rounded-2xl shadow-xs flex flex-col lg:flex-row justify-between items-center mb-6 gap-4 border border-slate-100">
         <div>
             <div class="flex items-center gap-2">
-                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">v3.2 Real-time Validation Engine</span>
+                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">v3.5 Metric Navigation Engine</span>
                 <div id="roleBadge" class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
                     <i class="fa-solid fa-eye"></i> Viewer Mode
                 </div>
@@ -32,7 +35,7 @@
             <h1 class="text-2xl font-black text-slate-800 mt-1 flex items-center gap-2">
                 <i class="fa-solid fa-shield-halved text-indigo-600"></i> North Region Asset Command Center
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">Real-time Local-Sync & Conflict Prevention System</p>
+            <p class="text-xs text-slate-500 mt-0.5">Click any metric card below to directly filter the lists instantly.</p>
         </div>
         
         <!-- Controls Console -->
@@ -49,31 +52,31 @@
         </div>
     </div>
 
-    <!-- Live Analytic Summary Matrix -->
+    <!-- Live Analytic Summary Matrix (Now Fully Interactive) -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
+        <div id="cardMetricAll" onclick="setMetricFilter('ALL')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4 metric-active">
             <div class="p-3 bg-blue-50 rounded-xl text-blue-600"><i class="fa-solid fa-users text-xl"></i></div>
             <div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Field Strength</span>
                 <div id="countPersonnel" class="text-2xl font-black text-slate-800">0</div>
             </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
+        <div id="cardMetricSims" onclick="setMetricFilter('SIM')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
             <div class="p-3 bg-indigo-50 rounded-xl text-indigo-600"><i class="fa-solid fa-sim-card text-xl"></i></div>
             <div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Active Telemetry SIMs</span>
                 <div id="countSims" class="text-2xl font-black text-indigo-600">0</div>
             </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
+        <div id="cardMetricAssets" onclick="setMetricFilter('ALL_ASSETS')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
             <div class="p-3 bg-rose-50 rounded-xl text-rose-600"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
             <div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Logged Assets</span>
                 <div id="countHardware" class="text-2xl font-black text-rose-600">0</div>
             </div>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-xs border-2 border-red-500 flex items-center gap-4 bg-red-50/20">
-            <div class="p-3 bg-red-100 rounded-xl text-red-700"><i class="fa-solid fa-triangle-exclamation text-xl animate-bounce"></i></div>
+        <div id="cardMetricDups" onclick="setMetricFilter('CONFLICT')" class="metric-card bg-white p-5 rounded-2xl shadow-sm border-2 border-red-200 flex items-center gap-4 hover:border-red-500">
+            <div class="p-3 bg-red-100 rounded-xl text-red-700"><i class="fa-solid fa-triangle-exclamation text-xl animate-pulse"></i></div>
             <div>
                 <span class="text-[11px] font-bold text-red-800 uppercase tracking-wider block">Duplicates & Deficiencies</span>
                 <div id="countDeficiencies" class="text-2xl font-black text-red-700">0</div>
@@ -85,19 +88,19 @@
     <div class="max-w-7xl mx-auto bg-white p-4 rounded-2xl shadow-xs mb-6 border border-slate-100 flex flex-col md:flex-row gap-3">
         <div class="relative flex-1">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-            <input type="text" id="searchInput" oninput="filterCards()" placeholder="Search via Employee Name, SIM number, Serial, Model, IMEI..." 
+            <input type="text" id="searchInput" oninput="filterCards()" placeholder="Type employee name, exact SIM serial, laptop tag or specific keyword..." 
                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500 font-medium">
         </div>
         <div class="flex gap-2">
-            <select id="providerFilter" onchange="filterCards()" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
-                <option value="ALL">All Items</option>
+            <select id="providerFilter" onchange="syncDropdownToMetrics()" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
+                <option value="ALL">All Ledger Records</option>
                 <option value="SIM">SIM Cards Only</option>
                 <option value="Laptop">Laptops Only</option>
                 <option value="Huawei">Huawei Gear Only</option>
                 <option value="Rigger">Rigger Safety Only</option>
                 <option value="CONFLICT">Conflict / Duplicates Only</option>
             </select>
-            <button onclick="clearAllFilters()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-3 py-2 rounded-xl transition cursor-pointer">Reset</button>
+            <button onclick="clearAllFilters()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-3 py-2 rounded-xl transition cursor-pointer">Clear Filters</button>
         </div>
     </div>
 
@@ -106,7 +109,7 @@
         <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider w-full mb-4 text-left flex items-center gap-1">
             <i class="fa-solid fa-chart-pie text-indigo-500"></i> Allocation Distribution Analysis
         </h3>
-        <div class="w-full md:w-[450px] h-[250px]">
+        <div class="w-full md:w-[450px] h-[200px]">
             <canvas id="telecomPieChart"></canvas>
         </div>
     </div>
@@ -114,11 +117,11 @@
     <!-- Main Live Dynamic Grid -->
     <div class="max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xs font-black text-slate-400 uppercase tracking-wider">Personnel Ledger Repositories</h2>
-            <span class="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-sm" id="syncStatus">Data Live Synthesized</span>
+            <h2 class="text-xs font-black text-slate-400 uppercase tracking-wider">Active Regional Database Ledger</h2>
+            <span class="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-sm" id="syncStatus">Engine Operational</span>
         </div>
         <div id="ledgersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Dynamic Injection Engine Output -->
+            <!-- Dynamic Injection Output -->
         </div>
     </div>
 
@@ -131,7 +134,7 @@
             <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center rounded-t-2xl">
                 <div>
                     <h3 class="text-base font-bold flex items-center gap-2" id="modalEmployeeName">Configuration Interface</h3>
-                    <p class="text-[11px] text-slate-400">Mutate, add metadata fields or purge inventory objects dynamically.</p>
+                    <p class="text-[11px] text-slate-400">Add, mutate, or permanently delete asset records inside this registry entry.</p>
                 </div>
                 <button onclick="closeModal()" class="text-slate-400 hover:text-white cursor-pointer text-2xl transition">&times;</button>
             </div>
@@ -140,13 +143,13 @@
             <div class="p-6 space-y-6 custom-scrollbar overflow-y-auto max-h-[65vh]">
                 
                 <!-- CRITICAL ALERTS POPUP AREA -->
-                <div id="modalAlertBox" class="hidden bg-red-100 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1">
-                    <!-- Duplicate details dynamically go here -->
+                <div id="modalAlertBox" class="hidden bg-red-50 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1">
+                    <!-- Duplicate details injected here -->
                 </div>
 
                 <!-- Telecom Box -->
                 <div>
-                    <h4 class="text-xs font-black uppercase text-indigo-600 mb-3 flex items-center gap-1"><i class="fa-solid fa-laptop"></i> IT & Hardware Group</h4>
+                    <h4 class="text-xs font-black uppercase text-indigo-600 mb-3 flex items-center gap-1"><i class="fa-solid fa-laptop"></i> IT Equipment &amp; Telemetry Lines</h4>
                     <div id="modalTelecomRows" class="space-y-2"></div>
                 </div>
 
@@ -154,22 +157,22 @@
 
                 <!-- Rigger Box -->
                 <div>
-                    <h4 class="text-xs font-black uppercase text-amber-600 mb-3 flex items-center gap-1"><i class="fa-solid fa-helmet-safety"></i> Rigger Safety & Field Modules</h4>
+                    <h4 class="text-xs font-black uppercase text-amber-600 mb-3 flex items-center gap-1"><i class="fa-solid fa-helmet-safety"></i> Rigger Safety &amp; Site Accessories</h4>
                     <div id="modalRiggerRows" class="space-y-2"></div>
                 </div>
 
                 <hr class="border-slate-100">
 
                 <!-- Append Form Object -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
-                    <h4 class="text-xs font-bold uppercase text-slate-600 mb-2"><i class="fa-solid fa-circle-plus"></i> Deploy Asset Line Element</h4>
+                <div id="adminAppendForm" class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300 hidden">
+                    <h4 class="text-xs font-bold uppercase text-slate-600 mb-2"><i class="fa-solid fa-circle-plus"></i> Add New Field Line Asset</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
                         <select id="newCategory" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-semibold">
                             <option value="Telecom Hardware">Telecom Hardware</option>
                             <option value="Rigger Safety">Rigger Safety</option>
                         </select>
-                        <input type="text" id="newItemName" placeholder="Item Name (e.g. Zain SIM)" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-medium">
-                        <input type="text" id="newSerial" placeholder="Serial/SIM/IMEI Number" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-mono">
+                        <input type="text" id="newItemName" placeholder="Asset Title (e.g. Zain SIM)" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-medium">
+                        <input type="text" id="newSerial" placeholder="Serial/SIM Number" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-mono">
                         <select id="newStatus" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-semibold">
                             <option value="Working">Working</option>
                             <option value="Need">Need</option>
@@ -178,29 +181,25 @@
                         </select>
                     </div>
                     <button onclick="addNewAssetItem()" class="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition">
-                        <i class="fa-solid fa-plus"></i> Inject Into Repository & Check Duplicates
+                        <i class="fa-solid fa-plus"></i> Insert Asset Entry & Scan Database
                     </button>
                 </div>
-
-                <!-- Audit Log Box Segment -->
-                <div class="bg-slate-900 p-3 rounded-xl text-slate-400 font-mono text-[10px]">
-                    <span class="text-white font-bold uppercase block mb-1 text-[9px] tracking-wider text-indigo-400"><i class="fa-solid fa-clock-rotate-left"></i> Session Modification Audit Log</span>
-                    <div id="modalAuditLog">No updates performed during this sub-session window.</div>
+                <div id="viewerWarnForm" class="text-xs font-medium text-slate-400 italic text-center p-2 bg-slate-50 rounded-lg">
+                    ⚠️ Writing new values or pulling elements requires Authorization Admin Mode.
                 </div>
             </div>
 
             <!-- Modal Action Footer -->
             <div class="bg-slate-50 px-6 py-4 flex justify-end gap-2 rounded-b-2xl border-t border-slate-200/60">
-                <button onclick="closeModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition">Cancel</button>
-                <button onclick="saveAllChanges()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-xs cursor-pointer transition shadow-xs"><i class="fa-solid fa-floppy-disk"></i> Commit & Synchronize</button>
+                <button onclick="closeModal()" class="bg-slate-300 hover:bg-slate-400 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition">Close Window</button>
+                <button id="commitChangesBtn" onclick="saveAllChanges()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-xs cursor-pointer transition shadow-xs hidden"><i class="fa-solid fa-floppy-disk"></i> Save &amp; Broadcast</button>
             </div>
         </div>
     </div>
 
-    <!-- CORE INTEGRATED DATABASE & UI RENDERING ENGINE -->
+    <!-- CODE CONTROLLER SCRIPT -->
     <script>
-        // Core seed data mapping
-        const initialSeedData = [
+        const defaultSeeds = [
             {"id":0,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T3F","status":"Working"},
             {"id":1,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working"},
             {"id":2,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Laptop Charger","serial":"4CH24205WL","status":"Working"},
@@ -250,13 +249,14 @@
         let currentEditingEmployee = "";
         let duplicateSerialsSet = new Set();
         let isAdminAuthorized = false;
+        let activeMetricFilter = "ALL";
 
         function initializeCoreEngine() {
             const localStored = localStorage.getItem('NORTH_REGION_MASTER_DATA');
             if (localStored) {
                 masterInventory = JSON.parse(localStored);
             } else {
-                masterInventory = [...initialSeedData];
+                masterInventory = [...defaultSeeds];
                 saveToLocalStorage();
             }
             evaluateDataStates();
@@ -264,10 +264,8 @@
 
         function saveToLocalStorage() {
             localStorage.setItem('NORTH_REGION_MASTER_DATA', JSON.stringify(masterInventory));
-            document.getElementById('syncStatus').innerText = "Changes Synced Locally";
-            setTimeout(() => {
-                document.getElementById('syncStatus').innerText = "Engine Live Synchronized";
-            }, 1500);
+            document.getElementById('syncStatus').innerText = "Changes Stored Offline";
+            setTimeout(() => { document.getElementById('syncStatus').innerText = "Engine Operational"; }, 1200);
         }
 
         function toggleAdminAuth() {
@@ -277,20 +275,19 @@
                 document.getElementById('authBtn').className = "bg-slate-800 text-white text-xs px-4 py-2 rounded-xl font-bold cursor-pointer transition shadow-xs";
                 document.getElementById('roleBadge').innerHTML = `<i class="fa-solid fa-eye"></i> Viewer Mode`;
                 document.getElementById('roleBadge').className = "bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1";
-                evaluateDataStates();
             } else {
-                const passwordInput = prompt("Enter Administration Code for Write Access:");
-                if (passwordInput === "Admin@North2026") {
+                const secret = prompt("Enter Administration Access Key Code:");
+                if (secret === "Admin@North2026") {
                     isAdminAuthorized = true;
                     document.getElementById('authBtn').innerHTML = `<i class="fa-solid fa-lock-open"></i> Revoke Admin Rights`;
                     document.getElementById('authBtn').className = "bg-rose-600 text-white text-xs px-4 py-2 rounded-xl font-bold cursor-pointer transition shadow-xs";
                     document.getElementById('roleBadge').innerHTML = `<i class="fa-solid fa-user-gear"></i> System Administrator`;
                     document.getElementById('roleBadge').className = "bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1";
-                    evaluateDataStates();
-                } else if (passwordInput !== null) {
-                    alert("Invalid Authorization Key! Read-Only Mode enforced.");
+                } else if (secret !== null) {
+                    alert("Authentication Error! Access Refused.");
                 }
             }
+            evaluateDataStates();
         }
 
         function evaluateDataStates() {
@@ -300,13 +297,11 @@
             renderPieChart();
         }
 
-        // Deep scanner engine for duplicate data logs mapping
         function findDuplicateSerials() {
             duplicateSerialsSet.clear();
             const counts = {};
             masterInventory.forEach(i => {
                 const s = i.serial ? i.serial.trim().toLowerCase() : "";
-                // Ignore general non-unique placeholders
                 if (s && s !== "n/a" && s !== "1" && s !== "old" && s !== "missing") {
                     counts[s] = (counts[s] || 0) + 1;
                 }
@@ -327,12 +322,42 @@
             document.getElementById('countDeficiencies').innerText = defs + duplicateSerialsSet.size;
         }
 
+        // Feature: Metric Card Filter Engine Click Bindings
+        function setMetricFilter(mode) {
+            activeMetricFilter = mode;
+            
+            // Manage classes highlight
+            document.querySelectorAll('.metric-card').forEach(c => c.classList.remove('metric-active'));
+            if(mode === 'ALL') document.getElementById('cardMetricAll').classList.add('metric-active');
+            if(mode === 'SIM') document.getElementById('cardMetricSims').classList.add('metric-active');
+            if(mode === 'ALL_ASSETS') document.getElementById('cardMetricAssets').classList.add('metric-active');
+            if(mode === 'CONFLICT') document.getElementById('cardMetricDups').classList.add('metric-active');
+
+            // Sync with selection box
+            if(['ALL','SIM','CONFLICT'].includes(mode)) {
+                document.getElementById('providerFilter').value = mode;
+            } else {
+                document.getElementById('providerFilter').value = "ALL";
+            }
+            filterCards();
+        }
+
+        function syncDropdownToMetrics() {
+            const dropdownVal = document.getElementById('providerFilter').value;
+            activeMetricFilter = dropdownVal;
+            document.querySelectorAll('.metric-card').forEach(c => c.classList.remove('metric-active'));
+            if(dropdownVal === 'ALL') document.getElementById('cardMetricAll').classList.add('metric-active');
+            if(dropdownVal === 'SIM') document.getElementById('cardMetricSims').classList.add('metric-active');
+            if(dropdownVal === 'CONFLICT') document.getElementById('cardMetricDups').classList.add('metric-active');
+            filterCards();
+        }
+
         function renderCards() {
             const container = document.getElementById('ledgersContainer');
             container.innerHTML = '';
             const employees = [...new Set(masterInventory.map(item => item.employee))];
 
-            employees.forEach((emp, index) => {
+            employees.forEach((emp, idx) => {
                 const items = masterInventory.filter(i => i.employee === emp);
                 const telecom = items.filter(i => i.category === "Telecom Hardware");
                 const rigger = items.filter(i => i.category === "Rigger Safety");
@@ -349,10 +374,10 @@
                     const isDup = i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase());
 
                     telecomHTML += `
-                        <div class="flex justify-between items-center bg-slate-50/70 p-2 rounded-xl border ${isDup ? 'border-red-400 bg-red-50' : 'border-slate-100'} text-xs">
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl border ${isDup ? 'border-red-400 bg-red-50' : 'border-slate-100'} text-xs">
                             <div>
-                                <div class="font-bold text-slate-700 text-[11px]">${i.item} ${isDup ? '<span class="text-red-600 font-black text-[9px] bg-red-100 px-1 rounded-xs">[⚠️ DUP]</span>':''}</div>
-                                <div class="text-[10px] font-mono ${isDup ? 'text-red-700 font-bold' : 'text-slate-400'}">S/N: ${i.serial}</div>
+                                <div class="font-bold text-slate-700 text-[11px]">${i.item} ${isDup ? '<span class="text-red-600 font-black text-[9px] bg-red-100 px-1 rounded-xs">[⚠️ DUPLICATE]</span>':''}</div>
+                                <div class="text-[10px] font-mono ${isDup ? 'text-red-700 font-bold' : 'text-slate-400'}">Identifier: ${i.serial}</div>
                             </div>
                             <span class="${stColor} text-[9px] font-black px-2 py-0.5 rounded-md">${i.status}</span>
                         </div>
@@ -375,69 +400,72 @@
                 container.innerHTML += `
                     <div class="card bg-white p-5 rounded-2xl border ${cardBorder} flex flex-col justify-between transition hover:shadow-md" 
                          data-employee="${emp.toLowerCase()}" 
-                         data-hasdup="${hasDup}">
+                         data-hasdup="${hasDup}"
+                         data-hasissue="${hasIssue}">
                         <div>
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 class="font-bold text-slate-800 text-base tracking-tight card-emp-name">${emp}</h3>
-                                    <span class="text-[10px] text-slate-400 font-mono uppercase bg-slate-100 px-1.5 py-0.5 rounded-sm">ID: NORTH-${index+1}</span>
+                                    <h3 class="font-black text-slate-800 text-base tracking-tight card-emp-name">${emp}</h3>
+                                    <span class="text-[10px] text-slate-400 font-mono uppercase bg-slate-100 px-1.5 py-0.5 rounded-sm">REG-ID: 00${idx+1}</span>
                                 </div>
                                 <button onclick="openModal('${emp}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-bold border border-indigo-100 cursor-pointer transition">
-                                    <i class="fa-solid ${isAdminAuthorized ? 'fa-user-gear' : 'fa-eye'}"></i> ${isAdminAuthorized ? 'Configure' : 'View'}
+                                    <i class="fa-solid ${isAdminAuthorized ? 'fa-user-gear' : 'fa-eye'}"></i> ${isAdminAuthorized ? 'Modify Asset' : 'View Items'}
                                 </button>
                             </div>
 
                             ${hasDup ? `
-                            <div class="mb-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1">
-                                <i class="fa-solid fa-triangle-exclamation animate-pulse"></i> Allocation Error: Duplicate Identifier Present!
+                            <div class="mb-3 bg-red-500 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Serial Identity Clash Detected!
                             </div>` : ''}
 
                             <div class="mt-4">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-laptop text-indigo-500"></i> IT / Device Layout</span>
-                                <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">${telecomHTML || '<p class="text-xs text-slate-400 italic">No nodes mapping</p>'}</div>
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-laptop text-indigo-500"></i> IT Architecture Pack</span>
+                                <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1 card-telecom-cluster">${telecomHTML || '<p class="text-xs text-slate-400 italic">No assets assigned</p>'}</div>
                             </div>
 
                             <div class="mt-4">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-helmet-safety text-amber-500"></i> Field & Safety Nodes</span>
-                                <div class="flex flex-wrap">${riggerHTML || '<p class="text-xs text-slate-400 italic">No nodes logged</p>'}</div>
+                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-helmet-safety text-amber-500"></i> Technical Rigging Units</span>
+                                <div class="flex flex-wrap card-rigger-cluster">${riggerHTML || '<p class="text-xs text-slate-400 italic">No safety tools</p>'}</div>
                             </div>
                         </div>
 
                         <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase">Operational Index</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Operational Status</span>
                             <span class="font-bold ${hasDup ? 'text-red-600' : (hasIssue ? 'text-rose-600':'text-emerald-600')}">
-                                ${hasDup ? 'Duplicate Mismatch' : (hasIssue ? 'Deficient State' : 'Operational Nominally')}
+                                ${hasDup ? 'Duplicate Mismatch' : (hasIssue ? 'Deficiency / Damage' : 'Nominal Status')}
                             </span>
                         </div>
                     </div>
                 `;
             });
-            // Re-trigger search matching pipeline to keep items focused
             filterCards();
         }
 
-        // FIX: Deep Search Engine Strategy
+        // Rigorous Multi-tier Filtering Engine Fix
         function filterCards() {
             const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const dropdown = document.getElementById('providerFilter').value;
+            const metric = activeMetricFilter;
 
             document.querySelectorAll('.card').forEach(card => {
                 const empName = card.querySelector('.card-emp-name').innerText.toLowerCase();
-                const hasDup = card.getAttribute('data-hasdup') === 'true';
+                const telecomContent = card.querySelector('.card-telecom-cluster').innerText.toLowerCase();
+                const riggerContent = card.querySelector('.card-rigger-cluster').innerText.toLowerCase();
                 
-                // Fetch all internal numbers and item labels for rigorous checking
-                const internalText = Array.from(card.querySelectorAll('div, span')).map(el => el.innerText.toLowerCase()).join(' ');
+                const hasDup = card.getAttribute('data-hasdup') === 'true';
+                const hasIssue = card.getAttribute('data-hasissue') === 'true';
 
-                let matchQuery = empName.includes(query) || internalText.includes(query);
-                let matchDropdown = true;
+                // Complete row scanning verification block
+                const matchesSearch = empName.includes(query) || telecomContent.includes(query) || riggerContent.includes(query);
+                
+                let matchesMetric = true;
+                if(metric === "SIM") matchesMetric = telecomContent.includes("sim");
+                if(metric === "Laptop") matchesMetric = telecomContent.includes("book") || telecomContent.includes("laptop");
+                if(metric === "Huawei") matchesMetric = telecomContent.includes("huawei");
+                if(metric === "Rigger") matchesMetric = riggerContent.length > 20; 
+                if(metric === "CONFLICT") matchesMetric = hasDup || hasIssue;
+                if(metric === "ALL_ASSETS") matchesMetric = true; 
 
-                if (dropdown === "SIM") matchDropdown = internalText.includes("sim");
-                if (dropdown === "Laptop") matchDropdown = internalText.includes("book") || internalText.includes("laptop");
-                if (dropdown === "Huawei") matchDropdown = internalText.includes("huawei");
-                if (dropdown === "Rigger") matchDropdown = internalText.includes("safety") || internalText.includes("belt") || internalText.includes("shoe") || internalText.includes("spanner");
-                if (dropdown === "CONFLICT") matchDropdown = hasDup;
-
-                if (matchQuery && matchDropdown) {
+                if (matchesSearch && matchesMetric) {
                     card.style.display = "flex";
                 } else {
                     card.style.display = "none";
@@ -447,15 +475,23 @@
 
         function clearAllFilters() {
             document.getElementById('searchInput').value = "";
-            document.getElementById('providerFilter').value = "ALL";
-            filterCards();
+            setMetricFilter('ALL');
         }
 
         function openModal(employeeName) {
             currentEditingEmployee = employeeName;
-            document.getElementById('modalEmployeeName').innerText = `${isAdminAuthorized ? 'Configure Assets Mapping' : 'Read-Only Asset Inventory View'} : ${employeeName}`;
-            document.getElementById('modalAuditLog').innerText = "Awaiting execution sequence inputs...";
-            document.getElementById('modalAlertBox').className = "hidden"; // clear banner on open
+            document.getElementById('modalEmployeeName').innerText = `${isAdminAuthorized ? 'Modify Asset Ledger Entry' : 'Read-Only Document Mapping'} : ${employeeName}`;
+            
+            // Adjust form objects visibility depending on authority permissions level
+            if(isAdminAuthorized) {
+                document.getElementById('adminAppendForm').classList.remove('hidden');
+                document.getElementById('viewerWarnForm').classList.add('hidden');
+                document.getElementById('commitChangesBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('adminAppendForm').classList.add('hidden');
+                document.getElementById('viewerWarnForm').classList.remove('hidden');
+                document.getElementById('commitChangesBtn').classList.add('hidden');
+            }
 
             buildModalRows();
             checkAndRenderModalAlerts();
@@ -485,11 +521,13 @@
                 const isDup = item.serial && duplicateSerialsSet.has(item.serial.trim().toLowerCase());
 
                 const rowHTML = `
-                    <div class="flex flex-col sm:flex-row gap-2 items-center ${isDup ? 'bg-red-50 border-red-400 p-2':'bg-slate-50/50 border-slate-200 p-2'} rounded-xl border text-xs w-full">
+                    <div class="flex flex-col sm:flex-row gap-2 items-center ${isDup ? 'bg-red-50/60 border-red-400 p-2':'bg-slate-50 border-slate-200 p-2'} rounded-xl border text-xs w-full">
                         <div class="w-full sm:w-1/3">
-                            <input type="text" value="${item.item}" ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'item', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full font-bold text-slate-700">
+                            <input type="text" value="${item.item}" ${isRead ? 'disabled':''} oninput="updateItemField(${item.id}, 'item', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full font-bold text-slate-700">
                         </div>
-                        <input type="text" value="${item.serial}" ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'serial', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full sm:w-1/3 font-mono ${isDup ? 'text-red-700 font-bold border-red-300 bg-red-100/50': 'text-slate-500'}">
+                        <div class="w-full sm:w-1/3 relative">
+                            <input type="text" value="${item.serial}" ${isRead ? 'disabled':''} oninput="updateItemField(${item.id}, 'serial', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full font-mono ${isDup ? 'text-red-700 font-black border-red-300 bg-red-50': 'text-slate-500'}">
+                        </div>
                         <select ${isRead ? 'disabled':''} onchange="updateItemField(${item.id}, 'status', this.value)" class="bg-white disabled:bg-slate-100 border border-slate-200 p-1.5 rounded-lg w-full sm:w-1/4 font-bold text-slate-600">
                             <option value="Working" ${item.status === 'Working' ? 'selected':''}>Working</option>
                             <option value="Need" ${item.status === 'Need' ? 'selected':''}>Need</option>
@@ -497,7 +535,7 @@
                             <option value="Not Issued" ${item.status === 'Not Issued' ? 'selected':''}>Not Issued</option>
                         </select>
                         ${!isRead ? `
-                        <button onclick="removeItemLine(${item.id})" class="text-rose-500 hover:text-rose-700 p-1 cursor-pointer transition text-sm">
+                        <button onclick="removeItemLine(${item.id})" class="text-rose-500 hover:text-rose-700 p-2 cursor-pointer transition text-sm" title="Remove Item">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>` : ''}
                     </div>
@@ -511,32 +549,28 @@
             });
         }
 
-        // Scan current modal assets stack to throw detailed alerts banner
         function checkAndRenderModalAlerts() {
             const alertBox = document.getElementById('modalAlertBox');
             alertBox.innerHTML = "";
-            let conflictsFound = [];
+            let conflicts = [];
 
             const currentItems = masterInventory.filter(i => i.employee === currentEditingEmployee);
             
             currentItems.forEach(item => {
                 const s = item.serial ? item.serial.trim().toLowerCase() : "";
                 if (s && s !== "n/a" && s !== "1" && s !== "old" && s !== "missing") {
-                    // Find matches belonging to OTHER employees
                     const matches = masterInventory.filter(allI => allI.employee !== currentEditingEmployee && allI.serial && allI.serial.trim().toLowerCase() === s);
                     if (matches.length > 0) {
                         matches.forEach(m => {
-                            conflictsFound.push(`⚠️ CONFLICT: "${item.item}" (${item.serial}) is ALSO assigned to <span class="underline">${m.employee}</span>!`);
+                            conflicts.push(`⚠️ IDENTIFIER DUPLICATE: Item "${item.item}" with serial [${item.serial}] is ALSO assigned to worker: <span class="underline font-black">${m.employee}</span>`);
                         });
                     }
                 }
             });
 
-            if (conflictsFound.length > 0) {
-                alertBox.className = "bg-red-100 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1 block";
-                conflictsFound.forEach(msg => {
-                    alertBox.innerHTML += `<div>${msg}</div>`;
-                });
+            if (conflicts.length > 0) {
+                alertBox.className = "bg-red-50 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1 block";
+                conflicts.forEach(msg => { alertBox.innerHTML += `<div>${msg}</div>`; });
             } else {
                 alertBox.className = "hidden";
             }
@@ -546,34 +580,29 @@
             const asset = masterInventory.find(i => i.id === id);
             if (asset) {
                 asset[field] = value;
-                document.getElementById('modalAuditLog').innerText = `[Mutation Trace]: Changed property values successfully.`;
                 findDuplicateSerials();
                 checkAndRenderModalAlerts();
+                document.getElementById('modalAuditLog').innerText = "Data mutations updated dynamically.";
             }
         }
 
         function addNewAssetItem() {
-            if (!isAdminAuthorized) {
-                alert("Action rejected! Authorize Admin permissions level mode.");
-                return;
-            }
+            if (!isAdminAuthorized) return;
             const cat = document.getElementById('newCategory').value;
             const name = document.getElementById('newItemName').value.trim();
             const ser = document.getElementById('newSerial').value.trim();
             const stat = document.getElementById('newStatus').value;
 
             if (!name || !ser) {
-                alert("Error! Primary parameters fields cannot be empty.");
+                alert("Error: Validation Parameters Empty!");
                 return;
             }
 
-            // Real-Time Validation Gatekeeper before injecting
             const serClean = ser.toLowerCase();
             if (serClean !== "n/a" && serClean !== "1" && serClean !== "old" && serClean !== "missing") {
-                const existingOwner = masterInventory.find(i => i.serial && i.serial.trim().toLowerCase() === serClean);
-                if (existingOwner) {
-                    // Flash notification popup message directly
-                    alert(`⚠️ SECURITY ALERT: DUPLICATE FOUND!\n\nThis Serial/SIM [ ${ser} ] is already assigned to: ${existingOwner.employee}.\n\nIt will be flagged as a conflict item in red color.`);
+                const dupObj = masterInventory.find(i => i.serial && i.serial.trim().toLowerCase() === serClean);
+                if (dupObj) {
+                    alert(`⚠️ DUPLICATE CONFLICT FOUND!\n\nThis serial value [ ${ser} ] belongs to ${dupObj.employee} already.\n\nIt will be flagged dynamically in red.`);
                 }
             }
 
@@ -583,8 +612,6 @@
             document.getElementById('newItemName').value = "";
             document.getElementById('newSerial').value = "";
             
-            document.getElementById('modalAuditLog').innerText = `[Append Trace]: Appended ${name} to repository stack.`;
-            
             findDuplicateSerials();
             buildModalRows();
             checkAndRenderModalAlerts();
@@ -593,7 +620,7 @@
         function removeItemLine(id) {
             if (!isAdminAuthorized) return;
             const itemObj = masterInventory.find(i => i.id === id);
-            if (confirm(`Purge element payload "${itemObj.item}"?`)) {
+            if (confirm(`Are you completely sure you want to delete "${itemObj.item}" from inventory repository list?`)) {
                 masterInventory = masterInventory.filter(i => i.id !== id);
                 findDuplicateSerials();
                 buildModalRows(); 
@@ -626,7 +653,7 @@
             pieChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: labels.slice(0, 4).concat(['Other Safety Tools']),
+                    labels: labels.slice(0, 4).concat(['Other Safety Gears']),
                     datasets: [{
                         data: dataValues.slice(0, 4).concat([dataValues.slice(4).reduce((a, b) => a + b, 0)]),
                         backgroundColor: ['#6366f1', '#3b82f6', '#f59e0b', '#ef4444', '#10b981'],
@@ -644,9 +671,7 @@
 
         function exportToExcel() {
             let csv = "data:text/csv;charset=utf-8,Employee,Category,Asset Item Model,Serial Identifier,Status\n";
-            masterInventory.forEach(r => {
-                csv += `"${r.employee}","${r.category}","${r.item}","${r.serial}","${r.status}"\n`;
-            });
+            masterInventory.forEach(r => { csv += `"${r.employee}","${r.category}","${r.item}","${r.serial}","${r.status}"\n`; });
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
             link.setAttribute("download", "North_Region_Live_Inventory.csv");
