@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>North Region Unified Master Tracker</title>
-    <!-- Tailwind CSS for modern layout -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js Library for the Pie Chart -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -25,43 +25,40 @@
             <p class="text-sm text-slate-500 mt-1">Telecom Infrastructure Assets & Rigger Safety Tool Engine</p>
         </div>
         <div class="flex gap-3 mt-4 md:mt-0">
-            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 cursor-pointer shadow-xs">
-                <i class="fa-solid fa-plus"></i> Add New Member
-            </button>
-            <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 cursor-pointer shadow-xs">
+            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 cursor-pointer shadow-xs">
                 <i class="fa-solid fa-file-excel"></i> Export Excel
             </button>
-            <button class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 cursor-pointer shadow-xs">
+            <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 cursor-pointer shadow-xs">
                 <i class="fa-solid fa-file-pdf"></i> Print PDF
             </button>
         </div>
     </div>
 
-    <!-- Top Summary Counters -->
+    <!-- Top Summary Counters (Dynamically Updated) -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-white p-5 rounded-xl shadow-xs border-l-4 border-blue-500">
             <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Field Personnel</span>
-            <div class="text-3xl font-bold text-slate-800 mt-1">8</div>
+            <div id="countPersonnel" class="text-3xl font-bold text-slate-800 mt-1">0</div>
         </div>
         <div class="bg-white p-5 rounded-xl shadow-xs border-l-4 border-indigo-500">
             <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active SIM Cards</span>
-            <div class="text-3xl font-bold text-blue-600 mt-1">22</div>
+            <div id="countSims" class="text-3xl font-bold text-blue-600 mt-1">0</div>
         </div>
         <div class="bg-white p-5 rounded-xl shadow-xs border-l-4 border-rose-500">
-            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tracked Hardware Items</span>
-            <div class="text-3xl font-bold text-rose-500 mt-1">75</div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Hardware Items</span>
+            <div id="countHardware" class="text-3xl font-bold text-rose-500 mt-1">0</div>
         </div>
         <div class="bg-white p-5 rounded-xl shadow-xs border-l-4 border-amber-500">
-            <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider">Flagged Safety Tools</span>
-            <div class="text-3xl font-bold text-amber-600 mt-1">31</div>
+            <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider">Deficiencies / Actions</span>
+            <div id="countDeficiencies" class="text-3xl font-bold text-amber-600 mt-1">0</div>
         </div>
     </div>
 
-    <!-- Search and Navigation Filters -->
+    <!-- Search Bar -->
     <div class="max-w-7xl mx-auto bg-white p-4 rounded-xl shadow-xs mb-6">
-        <div class="relative mb-4">
+        <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400"></i>
-            <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search via Serial, IMEI, Phone Number, Device Model, or Employee Name..." 
+            <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search via Employee Name or Device Model..." 
                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500">
         </div>
     </div>
@@ -69,9 +66,9 @@
     <!-- Analytics Dashboard Area -->
     <div class="max-w-7xl mx-auto bg-white p-6 rounded-xl shadow-xs mb-6 flex flex-col items-center">
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider w-full mb-4 text-left">
-            <i class="fa-solid fa-chart-pie mr-1 text-indigo-500"></i> Telecom Hardware Deployment (Pie Chart)
+            <i class="fa-solid fa-chart-pie mr-1 text-indigo-500"></i> Telecom Hardware Deployment (Live Pie Chart)
         </h3>
-        <div class="w-full md:w-[600px] h-[350px]">
+        <div class="w-full md:w-[500px] h-[350px]">
             <canvas id="telecomPieChart"></canvas>
         </div>
     </div>
@@ -80,240 +77,297 @@
     <div class="max-w-7xl mx-auto">
         <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">North Team Asset Assignment Ledgers</h2>
         <div id="ledgersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Cards will be dynamically injected here by JavaScript -->
+            <!-- Cards Dynamically Generated -->
         </div>
     </div>
 
-    <!-- Data & Automation Scripts -->
+    <!-- Master Script & Logic -->
     <script>
-        // Your Exact CSV Data transformed into JSON Object
-        const rawInventoryData = [
-            {"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T3F","status":"Working","remarks":"Working"},
-            {"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working","remarks":"Working"},
-            {"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Laptop Charger","serial":"4CH24205WL","status":"Working","remarks":"Working"},
-            {"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued","remarks":"Working"},
-            {"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446843","status":"Working","remarks":"Working"},
-            {"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448980","status":"Working","remarks":"Working"},
-            {"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T85","status":"Working","remarks":"Working"},
-            {"employee":"Amer Mohammed","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need","remarks":"Working"},
-            {"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446758","status":"Working","remarks":"Working"},
-            {"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448050","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG0462CX0","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446789","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592448903","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"580174700","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446967","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Kingston USB Hub","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378535","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044379731","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539847","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104805962","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104812380","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei CPE","serial":"867206040945128","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG1152Y1V","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378261","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044377792","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122746814","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122784532","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei Mate 30 Pro","serial":"862781041935423","status":"Damage","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448269","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446971","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Anker USB Hub","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Car Inverter","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Elite Book","serial":"5CG0462CY2","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448818","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592449627","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448924","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446963","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Cable: Kensington USB Hub","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Cable: Anker USB Hub","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Mobile: Huawei P40","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Mobile: Huawei P40","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Mobile: Huawei P40","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446755","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448058","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"HP Elite Book 840 G8","serial":"5CG2138VYF","status":"Working","remarks":"Working"},
-            {"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need","remarks":"Working"},
-            {"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"Zain SIM","serial":"592446849","status":"Working","remarks":"Working"},
-            {"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"Zain SIM","serial":"592448969","status":"Working","remarks":"Working"},
-            {"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"HP Elite Book 840 G8","serial":"5CG2138WDS","status":"Working","remarks":"Working"},
-            {"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need","remarks":"Working"},
-            {"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"Zain SIM","serial":"592448592","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"HP Laptop","serial":"5CG2471J9M","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Tools Bag","serial":"Missing","status":"Need","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075246733","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075362621","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075363660","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075363009","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446936","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446923","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446921","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044531463","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Ethernet Type C","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Ethernet Type C","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Ethernet Type C","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung S23","serial":"N/A","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working","remarks":"Working"},
-            {"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working","remarks":"Working"}
+        // Master Database Array (With 100% Correct Data for Sajawal & Others)
+        let masterInventory = [
+            {"id":0,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T3F","status":"Working"},
+            {"id":1,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working"},
+            {"id":2,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Laptop Charger","serial":"4CH24205WL","status":"Working"},
+            {"id":3,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},
+            {"id":4,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446843","status":"Working"},
+            {"id":5,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448980","status":"Working"},
+            
+            {"id":6,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T85","status":"Working"},
+            {"id":7,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working"},
+            {"id":8,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
+            {"id":9,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446758","status":"Working"},
+            {"id":10,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448050","status":"Working"},
+            
+            {"id":11,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG0462CX0","status":"Working"},
+            {"id":12,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working"},
+            {"id":13,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
+            {"id":14,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446789","status":"Working"},
+            {"id":15,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592448903","status":"Working"},
+            {"id":16,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"580174700","status":"Working"},
+            {"id":17,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446967","status":"Working"},
+            {"id":18,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Kingston USB Hub","serial":"N/A","status":"Working"},
+            {"id":19,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378535","status":"Working"},
+            {"id":20,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044379731","status":"Working"},
+            {"id":21,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539847","status":"Working"},
+            {"id":22,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104805962","status":"Working"},
+            {"id":23,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104812380","status":"Working"},
+            {"id":24,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei CPE","serial":"867206040945128","status":"Working"},
+            {"id":25,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working"},
+            {"id":26,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working"},
+            {"id":27,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working"},
+            {"id":28,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Working"},
+            {"id":29,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
+            {"id":30,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
+            {"id":31,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working"},
+            
+            {"id":32,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG1152Y1V","status":"Working"},
+            {"id":33,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working"},
+            {"id":34,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
+            {"id":35,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378261","status":"Working"},
+            {"id":36,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044377792","status":"Working"},
+            {"id":37,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122746814","status":"Working"},
+            {"id":38,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122784532","status":"Working"},
+            {"id":39,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei Mate 30 Pro","serial":"862781041935423","status":"Damage"},
+            {"id":40,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448269","status":"Working"},
+            {"id":41,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446971","status":"Working"},
+            {"id":42,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Anker USB Hub","serial":"N/A","status":"Working"},
+            {"id":43,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working"},
+            {"id":44,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working"},
+            {"id":45,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working"},
+            {"id":46,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
+            {"id":47,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
+            {"id":48,"employee":"Saeed Iqbal","category":"Rigger Safety","item":"Car Inverter","serial":"1","status":"Working"},
+            
+            // CORRECTED SAJAWAL DATA FROM RAW CSV DIRECTLY
+            {"id":49,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Elite Book","serial":"5CG0462CY2","status":"Working"},
+            {"id":50,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Charger","serial":"1","status":"Working"},
+            {"id":51,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},
+            {"id":52,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448818","status":"Working"},
+            {"id":53,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592449627","status":"Working"},
+            {"id":54,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448924","status":"Working"},
+            {"id":55,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446963","status":"Working"},
+            {"id":56,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Kensington USB Hub","serial":"1","status":"Working"},
+            {"id":57,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Anker USB Hub","serial":"1","status":"Working"},
+            {"id":58,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044497160","status":"Working"},
+            {"id":59,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044529418","status":"Working"},
+            {"id":60,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122742953","status":"Working"},
+            {"id":61,"employee":"Muhammad Sajawal","category":"Telecom Hardware","item":"Samsung S23","serial":"355928813629956","status":"Working"},
+            {"id":62,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Belt","serial":"1","status":"Working"},
+            {"id":63,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Shoe","serial":"1","status":"Working"},
+            {"id":64,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working"},
+            {"id":65,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working"},
+            {"id":66,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Working"},
+            {"id":67,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
+            {"id":68,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
+            {"id":69,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Need"},
+            {"id":70,"employee":"Muhammad Sajawal","category":"Rigger Safety","item":"Car Inverter","serial":"1","status":"Working"},
+
+            {"id":71,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"HP Elite Book 840 G8","serial":"5CG2138VYF","status":"Working"},
+            {"id":72,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working"},
+            {"id":73,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
+            {"id":74,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"Zain SIM","serial":"592446849","status":"Working"},
+            {"id":75,"employee":"Fuaad Alnakhli","category":"Telecom Hardware","item":"Zain SIM","serial":"592448969","status":"Working"},
+
+            {"id":76,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"HP Elite Book 840 G8","serial":"5CG2138WDS","status":"Working"},
+            {"id":77,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working"},
+            {"id":78,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
+            {"id":79,"employee":"Majed AlHarbi","category":"Telecom Hardware","item":"Zain SIM","serial":"592448592","status":"Working"},
+
+            {"id":80,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"HP Laptop","serial":"5CG2471J9M","status":"Working"},
+            {"id":81,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Tools Bag","serial":"Missing","status":"Need"},
+            {"id":82,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075246733","status":"Working"},
+            {"id":83,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075362621","status":"Working"},
+            {"id":84,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075363660","status":"Working"},
+            {"id":85,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung NOTE 5","serial":"352560075363009","status":"Working"},
+            {"id":86,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446936","status":"Working"},
+            {"id":87,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446923","status":"Working"},
+            {"id":88,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Zain SIM","serial":"592446921","status":"Working"},
+            {"id":89,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044531463","status":"Working"},
+            {"id":90,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Ethernet Type C","serial":"N/A","status":"Working"},
+            {"id":91,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working"},
+            {"id":92,"employee":"Naveed Ahmad","category":"Telecom Hardware","item":"Samsung S23","serial":"N/A","status":"Working"},
+            {"id":93,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working"},
+            {"id":94,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working"},
+            {"id":95,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Helmet","serial":"1","status":"Working"},
+            {"id":96,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 13","serial":"1","status":"Working"},
+            {"id":97,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
+            {"id":98,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
+            {"id":99,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working"},
+            {"id":100,"employee":"Naveed Ahmad","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working"}
         ];
 
-        // Unique Employees List
-        const employees = [...new Set(rawInventoryData.map(item => item.employee))];
-        const container = document.getElementById('ledgersContainer');
+        let pieChartInstance = null;
 
-        // Dynamically Generate Cards
-        employees.forEach((emp, index) => {
-            const empItems = rawInventoryData.filter(item => item.employee === emp);
-            const telecomItems = empItems.filter(item => item.category === "Telecom Hardware");
-            const riggerItems = empItems.filter(item => item.category === "Rigger Safety");
+        // Render Dashboard Elements
+        function initDashboard() {
+            renderCounters();
+            renderCards();
+            renderPieChart();
+        }
 
-            // Check if card contains any issues to add a subtle warning border
-            const hasIssue = empItems.some(i => i.status === "Need" || i.status === "Damage");
-            const borderClass = hasIssue ? 'border-2 border-red-300 shadow-sm' : 'border border-slate-100';
+        // Calculate and Render Counters
+        function renderCounters() {
+            const employees = [...new Set(masterInventory.map(i => i.employee))];
+            const sims = masterInventory.filter(i => i.item.includes("SIM")).length;
+            const hardware = masterInventory.filter(i => i.category === "Telecom Hardware").length;
+            const deficiencies = masterInventory.filter(i => i.status === "Need" || i.status === "Damage").length;
 
-            let telecomHTML = '';
-            telecomItems.forEach(i => {
-                let badgeColor = 'bg-emerald-100 text-emerald-800';
-                if (i.status === 'Need') badgeColor = 'bg-rose-100 text-rose-800';
-                if (i.status === 'Damage') badgeColor = 'bg-red-600 text-white';
-                if (i.status === 'Not Issued') badgeColor = 'bg-slate-200 text-slate-700';
+            document.getElementById('countPersonnel').innerText = employees.length;
+            document.getElementById('countSims').innerText = sims;
+            document.getElementById('countHardware').innerText = hardware;
+            document.getElementById('countDeficiencies').innerText = deficiencies;
+        }
 
-                telecomHTML += `
-                    <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs">
-                        <div>
-                            <div class="font-semibold text-slate-700">${i.item}</div>
-                            <div class="text-[10px] font-mono text-slate-400">S/N: ${i.serial}</div>
+        // Render Cards Dynamically
+        function renderCards() {
+            const container = document.getElementById('ledgersContainer');
+            container.innerHTML = '';
+            const employees = [...new Set(masterInventory.map(item => item.employee))];
+
+            employees.forEach((emp, index) => {
+                const empItems = masterInventory.filter(item => item.employee === emp);
+                const telecomItems = empItems.filter(item => item.category === "Telecom Hardware");
+                const riggerItems = empItems.filter(item => item.category === "Rigger Safety");
+                const hasIssue = empItems.some(i => i.status === "Need" || i.status === "Damage");
+
+                let telecomHTML = '';
+                telecomItems.forEach(i => {
+                    let badgeColor = 'bg-emerald-100 text-emerald-800';
+                    if (i.status === 'Need') badgeColor = 'bg-rose-100 text-rose-800';
+                    if (i.status === 'Damage') badgeColor = 'bg-red-600 text-white';
+                    if (i.status === 'Not Issued') badgeColor = 'bg-slate-200 text-slate-700';
+
+                    telecomHTML += `
+                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-100 text-xs">
+                            <div>
+                                <div class="font-semibold text-slate-700">${i.item}</div>
+                                <div class="text-[10px] font-mono text-slate-400">S/N: ${i.serial}</div>
+                            </div>
+                            <span class="${badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-sm">${i.status}</span>
                         </div>
-                        <span class="${badgeColor} text-[10px] font-bold px-2 py-0.5 rounded-sm">${i.status}</span>
+                    `;
+                });
+
+                let riggerHTML = '';
+                riggerItems.forEach(i => {
+                    let riggerBadge = i.status === 'Need' ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-amber-50 text-amber-800 border-amber-200';
+                    riggerHTML += `<span class="${riggerBadge} border text-[10px] font-medium px-2 py-1 rounded-md m-0.5 inline-block">${i.item}: ${i.serial}</span>`;
+                });
+
+                const cardHTML = `
+                    <div class="card bg-white p-5 rounded-xl ${hasIssue ? 'border-2 border-red-300 shadow-sm' : 'border border-slate-100'} flex flex-col justify-between" data-name="${emp.toLowerCase()}">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-bold text-slate-800 text-base">${emp}</h3>
+                                    <span class="text-xs text-slate-400 font-mono">System ID: #N-${index + 1}</span>
+                                </div>
+                                <button onclick="triggerEdit('${emp}')" class="text-xs text-blue-600 font-semibold cursor-pointer hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                            </div>
+                            <div class="mt-4">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-2"><i class="fa-solid fa-laptop text-indigo-500"></i> IT & Telecom System</span>
+                                <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">${telecomHTML}</div>
+                            </div>
+                            <div class="mt-4"><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-2"><i class="fa-solid fa-helmet-safety text-amber-500"></i> Rigger & Safety Assets</span>
+                                <div class="flex flex-wrap">${riggerHTML || '<p class="text-xs text-slate-400 italic">No Field Gears Logged</p>'}</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">System Status</span>
+                            <span class="font-semibold ${hasIssue ? 'text-rose-600':'text-emerald-600'}">${hasIssue ? 'Action Required' : 'Working'}</span>
+                        </div>
                     </div>
                 `;
-            });
-
-            let riggerHTML = '';
-            if (riggerItems.length > 0) {
-                riggerItems.forEach(i => {
-                    riggerHTML += `<span class="bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium px-2 py-1 rounded-md m-0.5 inline-block">${i.item}: ${i.serial}</span>`;
-                });
-            } else {
-                riggerHTML = `<p class="text-xs text-slate-400 italic">No Field Gears Logged</p>`;
-            }
-
-            const cardHTML = `
-                <div class="card bg-white p-5 rounded-xl ${borderClass} flex flex-col justify-between" data-name="${emp.toLowerCase()}">
-                    <div>
-                        <div class="flex justify-between items-start mb-3">
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-base">${emp}</h3>
-                                <span class="text-xs text-slate-400 font-mono">System ID: #N-${index + 1}</span>
-                            </div>
-                            <div class="text-xs flex gap-2"><span class="text-blue-600 cursor-pointer font-semibold">Edit</span><span class="text-slate-300">|</span><span class="text-slate-400 cursor-pointer">Del</span></div>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-2">
-                                <i class="fa-solid fa-laptop text-indigo-500"></i> IT & Telecom System
-                            </span>
-                            <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
-                                ${telecomHTML}
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mb-2">
-                                <i class="fa-solid fa-helmet-safety text-amber-500"></i> Rigger & Safety Assets
-                            </span>
-                            <div class="flex flex-wrap">
-                                ${riggerHTML}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">System Status</span>
-                        <span class="font-semibold ${hasIssue ? 'text-rose-600':'text-emerald-600'}">${hasIssue ? 'Action Required' : 'Working'}</span>
-                    </div>
-                </div>
-            `;
-            container.innerHTML += cardHTML;
-        });
-
-        // Search Filter Functionality
-        function filterCards() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.card');
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                if (name.includes(query)) {
-                    card.style.display = "flex";
-                } else {
-                    card.style.display = "none";
-                }
+                container.innerHTML += cardHTML;
             });
         }
 
-        // Render Dynamic Pie Chart using Data Aggregation
-        const ctx = document.getElementById('telecomPieChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Zain SIM', 'Huawei P40', 'HP Bag', 'Samsung NOTE 5', 'Ethernet Type C', 'Others'],
-                datasets: [{
-                    label: 'Units Deployed',
-                    data: [22, 9, 7, 4, 4, 29], // Aggregated counts from your CSV
-                    backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#94a3b8'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: { boxWidth: 12, font: { size: 11 } }
-                    }
+        // Generate or Update Chart.js Pie Chart
+        function renderPieChart() {
+            const counts = {};
+            masterInventory.forEach(i => {
+                if(i.category === "Telecom Hardware") {
+                    counts[i.item] = (counts[i.item] || 0) + 1;
+                }
+            });
+
+            // Sort and take top items for clean Pie visual
+            const labels = Object.keys(counts);
+            const dataValues = Object.values(counts);
+
+            const ctx = document.getElementById('telecomPieChart').getContext('2d');
+            if (pieChartInstance) { pieChartInstance.destroy(); }
+
+            pieChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels.slice(0,6).concat(['Others']),
+                    datasets: [{
+                        data: dataValues.slice(0,6).concat([dataValues.slice(6).reduce((a, b) => a + b, 0)]),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#94a3b8'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } } }
+            });
+        }
+
+        // Secured Edit Trigger Logic
+        function triggerEdit(employeeName) {
+            const pass = prompt("Enter Admin Password to Edit Items:");
+            if (pass !== "Admin@North2026") {
+                alert("Galat Password! Access Denied.");
+                return;
+            }
+
+            const empItems = masterInventory.filter(i => i.employee === employeeName);
+            let optionsStr = empItems.map((i, idx) => `${idx + 1}. ${i.item} (Current: ${i.status})`).join("\n");
+            
+            const selection = prompt(`Kounsa item edit karna chahte hain? Number daalein:\n\n${optionsStr}`);
+            const selectedIdx = parseInt(selection) - 1;
+
+            if (selectedIdx >= 0 && selectedIdx < empItems.length) {
+                const targetItem = empItems[selectedIdx];
+                const newStatus = prompt(`Naya Status enter karein:\nOptions: Working, Need, Damage, Not Issued`, targetItem.status);
+                
+                if (['Working', 'Need', 'Damage', 'Not Issued'].includes(newStatus)) {
+                    // Update main array directly
+                    targetItem.status = newStatus;
+                    alert("Status successfully update ho gaya!");
+                    // Trigger real time view updates
+                    initDashboard();
+                } else if(newStatus !== null) {
+                    alert("Galat option! Status sirf Working, Need, Damage, ya Not Issued ho sakta hai.");
                 }
             }
-        });
+        }
+
+        // Filter Function for Search
+        function filterCards() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.card').forEach(card => {
+                const name = card.getAttribute('data-name');
+                card.style.display = name.includes(query) ? "flex" : "none";
+            });
+        }
+
+        // Functional CSV/Excel Export Engine
+        function exportToExcel() {
+            let csvContent = "data:text/csv;charset=utf-8,Employee Name,Asset Category,Model/Tool Name,Serial/IMEI/Quantity,Status\n";
+            masterInventory.forEach(r => {
+                csvContent += `"${r.employee}","${r.category}","${r.item}","${r.serial}","${r.status}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "North_Region_Live_Inventory.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Start Dashboard on load
+        window.onload = initDashboard;
     </script>
 </body>
 </html>
