@@ -145,13 +145,13 @@
 
     <!-- DUPLICATE ALERT MODAL (POP-UP) -->
     <div id="duplicateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-rose-500 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 transform transition-all">
+        <div class="bg-slate-800 border border-rose-500 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
             <div class="flex items-center space-x-3 text-rose-500">
                 <i class="fa-solid fa-triangle-exclamation text-3xl animate-bounce"></i>
                 <h3 class="text-xl font-bold">Duplicate Asset Conflict!</h3>
             </div>
             <p class="text-sm text-slate-300 leading-relaxed">
-                The Serial / SIM Number you entered already exists inside the active inventory database. To prevent track logs corruption, duplicate registrations are restricted.
+                The Serial / SIM Number you entered already exists inside the active inventory database. Duplicate registrations are restricted.
             </p>
             <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1">
                 <p><strong>Conflicting Serial:</strong> <span id="dupSerialText" class="text-rose-400 font-mono"></span></p>
@@ -199,7 +199,6 @@
             </div>
             <div class="bg-slate-900/40 px-6 py-4 border-t border-slate-700 flex justify-end space-x-3">
                 <button onclick="closeValidationModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-semibold rounded-lg transition-colors">Close Verification</button>
-                <button onclick="printValidationProfile()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-print"></i> Print Receipt</button>
             </div>
         </div>
     </div>
@@ -320,7 +319,22 @@
             { "id": 63, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD" }
         ];
 
-        let inventory = JSON.parse(localStorage.getItem('north_inventory')) || initialSeeds;
+        // Force reset if Adnan is found in local storage
+        let stored = localStorage.getItem('north_inventory');
+        let inventory = initialSeeds;
+        if (stored) {
+            let parsed = JSON.parse(stored);
+            let hasAdnan = parsed.some(i => i.employee.toLowerCase().includes("adnan"));
+            if (hasAdnan) {
+                localStorage.setItem('north_inventory', JSON.stringify(initialSeeds));
+                inventory = initialSeeds;
+            } else {
+                inventory = parsed;
+            }
+        } else {
+            localStorage.setItem('north_inventory', JSON.stringify(initialSeeds));
+        }
+
         let isAdmin = false;
         let categoryChartInst = null;
         let statusChartInst = null;
@@ -349,8 +363,8 @@
                 isAdmin = false;
                 document.getElementById('adminBtn').classList.replace('bg-red-600', 'bg-slate-700');
                 document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock"></i> <span>Admin Mode</span>';
-                document.getElementById('addItemBtn').addClass('hidden');
-                document.getElementById('actionsHeader').addClass('hidden');
+                document.getElementById('addItemBtn').classList.add('hidden');
+                document.getElementById('actionsHeader').classList.add('hidden');
             }
             renderDashboard();
         }
@@ -358,7 +372,7 @@
         function renderDashboard() {
             const searchTerm = document.getElementById('globalSearch').value.toLowerCase().trim();
             
-            // Filter Dataset accurately based on search input
+            // Comprehensive Global Filter Logic
             const filteredData = inventory.filter(item => {
                 return item.employee.toLowerCase().includes(searchTerm) ||
                        item.item.toLowerCase().includes(searchTerm) ||
@@ -367,7 +381,7 @@
                        item.status.toLowerCase().includes(searchTerm);
             });
 
-            // Update Metrics Counters
+            // Metrics Computation
             let telecomCount = 0, riggerCount = 0, simCount = 0, issueCount = 0;
             let categoryMap = {}, statusMap = {};
 
@@ -386,10 +400,9 @@
             document.getElementById('statSims').innerText = simCount;
             document.getElementById('statIssues').innerText = issueCount;
 
-            // Render Employee Validation Profile Cards
+            // Render Modules
             renderEmployeeValidationGrid(filteredData);
 
-            // Render Main Ledger Table
             const tbody = document.getElementById('inventoryTableBody');
             tbody.innerHTML = '';
 
@@ -413,15 +426,14 @@
                         <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusBadge}">${item.status}</span></td>
                         ${isAdmin ? `
                         <td class="px-6 py-4 text-xs space-x-2">
-                            <button onclick="openEditModal(${item.id})" class="text-blue-400 hover:text-blue-300 transition-colors"><i class="fa-solid fa-pen"></i></button>
-                            <button onclick="deleteAssetItem(${item.id})" class="text-rose-400 hover:text-rose-300 transition-colors ml-2"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="openEditModal(${item.id})" class="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button onclick="deleteAssetItem(${item.id})" class="text-rose-400 hover:text-rose-300 transition-colors ml-4 cursor-pointer"><i class="fa-solid fa-trash"></i> Del</button>
                         </td>` : ''}
                     `;
                     tbody.appendChild(tr);
                 });
             }
 
-            // Update Dynamic High-Fidelity Charts
             updateCharts(categoryMap, statusMap);
         }
 
@@ -429,34 +441,33 @@
             const grid = document.getElementById('employeeCardGrid');
             grid.innerHTML = '';
 
-            // Extract unique employees inside active filtered context
-            const employees = [...new Set(inventory.map(item => item.employee))];
+            // Clean & Strict normalization to fix multiple Majid cards
+            const uniqueCleanNames = [...new Set(inventory.map(item => item.employee.trim()))];
 
-            employees.forEach(emp => {
-                const empItems = inventory.filter(i => i.employee === emp);
-                const matchedSearchCount = filteredData.filter(i => i.employee === emp).length;
+            uniqueCleanNames.forEach(empName => {
+                const empItems = inventory.filter(i => i.employee.trim() === empName);
+                const matchedSearchCount = filteredData.filter(i => i.employee.trim() === empName).length;
                 
-                // If search query active and employee has no matched items, omit card visually
                 if(document.getElementById('globalSearch').value.trim() !== "" && matchedSearchCount === 0) return;
 
-                const initials = emp.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                const initials = empName.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0,2).toUpperCase();
                 
                 const card = document.createElement('div');
                 card.className = "bg-slate-700/30 hover:bg-slate-700/60 border border-slate-700 hover:border-slate-600 rounded-xl p-4 flex flex-col justify-between transition-all cursor-pointer shadow-sm group";
-                card.setAttribute('onclick', `openValidationProfile("${emp}")`);
+                card.setAttribute('onclick', `openValidationProfile("${empName}")`);
                 
                 card.innerHTML = `
                     <div class="flex items-start justify-between space-x-3">
                         <div class="flex items-center space-x-3">
                             <div class="w-9 h-9 rounded-full bg-blue-600/10 text-blue-400 flex items-center justify-center font-bold text-sm group-hover:bg-blue-600 group-hover:text-white transition-all">${initials}</div>
                             <div>
-                                <h4 class="text-sm font-semibold text-white tracking-wide truncate max-w-[150px]">${emp}</h4>
-                                <p class="text-xs text-slate-400">${empItems.length} Registered Assets</p>
+                                <h4 class="text-sm font-semibold text-white tracking-wide truncate max-w-[150px]">${empName}</h4>
+                                <p class="text-xs text-slate-400">${empItems.length} Handover Items</p>
                             </div>
                         </div>
                     </div>
                     <div class="mt-4 pt-3 border-t border-slate-700/60 flex justify-between items-center text-[11px]">
-                        <span class="text-slate-400">Click to Verify Logs</span>
+                        <span class="text-slate-400">Click to View Profile</span>
                         <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-blue-400 transition-colors"></i>
                     </div>
                 `;
@@ -465,9 +476,9 @@
         }
 
         function openValidationProfile(employeeName) {
-            const userItems = inventory.filter(i => i.employee === employeeName);
+            const userItems = inventory.filter(i => i.employee.trim() === employeeName.trim());
             document.getElementById('valEmployeeName').innerText = employeeName;
-            document.getElementById('valUserBadge').innerText = employeeName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+            document.getElementById('valUserBadge').innerText = employeeName.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0,2).toUpperCase();
             document.getElementById('valTotalItems').innerText = `${userItems.length} Assets Assigned`;
 
             const listContainer = document.getElementById('valItemsList');
@@ -478,7 +489,7 @@
                 itemDiv.className = "flex items-center justify-between bg-slate-900/30 p-3 rounded-lg border border-slate-700/50 text-sm";
                 itemDiv.innerHTML = `
                     <div class="flex items-center space-x-3">
-                        <input type="checkbox" checked class="w-4 h-4 rounded text-purple-600 bg-slate-800 border-slate-700 focus:ring-purple-500">
+                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
                         <div>
                             <p class="font-medium text-slate-200">${item.item}</p>
                             <p class="text-xs text-slate-500 font-mono">${item.serial}</p>
@@ -497,9 +508,7 @@
         }
 
         function checkDuplicateSerial(serial, currentId) {
-            // Ignore blank or dummy values like "1" or "ROHS"
             if(["1", "rohs", "n/a", "none"].includes(serial.toLowerCase().trim())) return null;
-            
             return inventory.find(item => item.serial.toLowerCase().trim() === serial.toLowerCase().trim() && item.id !== parseInt(currentId));
         }
 
@@ -512,18 +521,17 @@
             const serial = document.getElementById('formSerial').value.trim();
             const status = document.getElementById('formStatus').value;
 
-            // Strict Live Duplicate Check Logic Verification
+            // Search-ready strict validation check
             const duplicateConflict = checkDuplicateSerial(serial, id);
             if (duplicateConflict) {
                 document.getElementById('dupSerialText').innerText = duplicateConflict.serial;
                 document.getElementById('dupEmployeeText').innerText = duplicateConflict.employee;
                 document.getElementById('dupItemText').innerText = duplicateConflict.item;
                 document.getElementById('duplicateModal').classList.remove('hidden');
-                return; // Cease execution to prevent data error corruption
+                return;
             }
 
             if (id === "") {
-                // Generate secure index increment id
                 const nextId = inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 0;
                 inventory.push({ id: nextId, employee, category, item, serial, status });
             } else {
@@ -543,7 +551,7 @@
         }
 
         function deleteAssetItem(id) {
-            if(confirm("Are you absolutely sure you want to permanently erase this resource assignment log?")) {
+            if(confirm("Permanently delete this tracking resource entry?")) {
                 inventory = inventory.filter(i => i.id !== id);
                 saveState();
                 renderDashboard();
@@ -619,14 +627,10 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "North_Tools_Inventory_Ledger_2026.csv");
+            link.setAttribute("download", "North_Tools_Inventory_Ledger.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }
-
-        function printValidationProfile() {
-            window.print();
         }
     </script>
 </body>
