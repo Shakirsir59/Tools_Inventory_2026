@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>North Tools Inventory Dashboard</title>
-    <!-- Tailwind CSS for Modern Responsive UI -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js for Interactive Charts -->
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome Icons -->
+    <!-- FontAwesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans min-h-screen dynamic-dashboard">
@@ -100,7 +100,7 @@
                 </div>
             </div>
             <div id="employeeCardGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                <!-- Dynamic Employee Validation Cards will render here -->
+                <!-- Dynamic Employee Validation Cards -->
             </div>
         </section>
 
@@ -147,20 +147,20 @@
     <div id="duplicateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-rose-500 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
             <div class="flex items-center space-x-3 text-rose-500">
-                <i class="fa-solid fa-triangle-exclamation text-3xl animate-bounce"></i>
+                <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
                 <h3 class="text-xl font-bold">Duplicate Asset Conflict!</h3>
             </div>
             <p class="text-sm text-slate-300 leading-relaxed">
                 The Serial / SIM Number you entered already exists inside the active inventory database. Duplicate registrations are restricted.
             </p>
             <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1">
-                <p><strong>Conflicting Serial:</strong> <span id="dupSerialText" class="text-rose-400 font-mono"></span></p>
-                <p><strong>Assigned To:</strong> <span id="dupEmployeeText" class="text-slate-200"></span></p>
+                <p><strong>Conflicting Serial:</strong> <span id="dupSerialText" class="text-rose-400 font-mono font-bold"></span></p>
+                <p><strong>Assigned To:</strong> <span id="dupEmployeeText" class="text-slate-200 font-bold"></span></p>
                 <p><strong>Item Name:</strong> <span id="dupItemText" class="text-slate-200"></span></p>
             </div>
             <div class="flex justify-end">
-                <button onclick="closeDuplicateModal()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold rounded-lg transition-colors shadow">
-                    Review Constraints
+                <button type="button" onclick="closeDuplicateModal()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold rounded-lg transition-colors shadow">
+                    Review Details
                 </button>
             </div>
         </div>
@@ -208,7 +208,7 @@
         <div class="bg-slate-800 border border-slate-700 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-700 pb-3">
                 <h3 id="modalTitle" class="text-lg font-bold text-white">Register Asset Log</h3>
-                <button onclick="closeResourceModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" onclick="closeResourceModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form id="assetForm" onsubmit="saveAssetForm(event)" class="space-y-4">
                 <input type="hidden" id="formAssetId">
@@ -319,25 +319,19 @@
             { "id": 63, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD" }
         ];
 
-        // Force reset if Adnan is found in local storage
-        let stored = localStorage.getItem('north_inventory');
-        let inventory = initialSeeds;
-        if (stored) {
-            let parsed = JSON.parse(stored);
-            let hasAdnan = parsed.some(i => i.employee.toLowerCase().includes("adnan"));
-            if (hasAdnan) {
-                localStorage.setItem('north_inventory', JSON.stringify(initialSeeds));
-                inventory = initialSeeds;
-            } else {
-                inventory = parsed;
-            }
-        } else {
-            localStorage.setItem('north_inventory', JSON.stringify(initialSeeds));
-        }
-
+        let inventory = [];
         let isAdmin = false;
         let categoryChartInst = null;
         let statusChartInst = null;
+
+        // Initialize state reliably
+        const stored = localStorage.getItem('north_inventory');
+        if (stored) {
+            inventory = JSON.parse(stored);
+        } else {
+            inventory = [...initialSeeds];
+            localStorage.setItem('north_inventory', JSON.stringify(inventory));
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             renderDashboard();
@@ -352,7 +346,8 @@
                 const pass = prompt("Enter Administration Password:");
                 if (pass === "Admin@North2026") {
                     isAdmin = true;
-                    document.getElementById('adminBtn').classList.replace('bg-slate-700', 'bg-red-600');
+                    document.getElementById('adminBtn').classList.remove('bg-slate-700');
+                    document.getElementById('adminBtn').classList.add('bg-red-600');
                     document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-unlock"></i> <span>Exit Admin</span>';
                     document.getElementById('addItemBtn').classList.remove('hidden');
                     document.getElementById('actionsHeader').classList.remove('hidden');
@@ -361,7 +356,8 @@
                 }
             } else {
                 isAdmin = false;
-                document.getElementById('adminBtn').classList.replace('bg-red-600', 'bg-slate-700');
+                document.getElementById('adminBtn').classList.remove('bg-red-600');
+                document.getElementById('adminBtn').classList.add('bg-slate-700');
                 document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock"></i> <span>Admin Mode</span>';
                 document.getElementById('addItemBtn').classList.add('hidden');
                 document.getElementById('actionsHeader').classList.add('hidden');
@@ -372,7 +368,6 @@
         function renderDashboard() {
             const searchTerm = document.getElementById('globalSearch').value.toLowerCase().trim();
             
-            // Comprehensive Global Filter Logic
             const filteredData = inventory.filter(item => {
                 return item.employee.toLowerCase().includes(searchTerm) ||
                        item.item.toLowerCase().includes(searchTerm) ||
@@ -381,7 +376,6 @@
                        item.status.toLowerCase().includes(searchTerm);
             });
 
-            // Metrics Computation
             let telecomCount = 0, riggerCount = 0, simCount = 0, issueCount = 0;
             let categoryMap = {}, statusMap = {};
 
@@ -400,14 +394,13 @@
             document.getElementById('statSims').innerText = simCount;
             document.getElementById('statIssues').innerText = issueCount;
 
-            // Render Modules
             renderEmployeeValidationGrid(filteredData);
 
             const tbody = document.getElementById('inventoryTableBody');
             tbody.innerHTML = '';
 
             if (filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 6 : 5}" class="px-6 py-8 text-center text-slate-500">No matching tracking resources detected in search query.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 6 : 5}" class="px-6 py-8 text-center text-slate-500">No matching tracking resources detected.</td></tr>`;
             } else {
                 filteredData.forEach(item => {
                     const tr = document.createElement('tr');
@@ -426,8 +419,8 @@
                         <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusBadge}">${item.status}</span></td>
                         ${isAdmin ? `
                         <td class="px-6 py-4 text-xs space-x-2">
-                            <button onclick="openEditModal(${item.id})" class="text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"><i class="fa-solid fa-pen"></i> Edit</button>
-                            <button onclick="deleteAssetItem(${item.id})" class="text-rose-400 hover:text-rose-300 transition-colors ml-4 cursor-pointer"><i class="fa-solid fa-trash"></i> Del</button>
+                            <button onclick="openEditModal(${item.id})" class="text-blue-400 hover:text-blue-300 transition-colors"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button onclick="deleteAssetItem(${item.id})" class="text-rose-400 hover:text-rose-300 transition-colors ml-4"><i class="fa-solid fa-trash"></i> Del</button>
                         </td>` : ''}
                     `;
                     tbody.appendChild(tr);
@@ -441,7 +434,6 @@
             const grid = document.getElementById('employeeCardGrid');
             grid.innerHTML = '';
 
-            // Clean & Strict normalization to fix multiple Majid cards
             const uniqueCleanNames = [...new Set(inventory.map(item => item.employee.trim()))];
 
             uniqueCleanNames.forEach(empName => {
@@ -508,12 +500,18 @@
         }
 
         function checkDuplicateSerial(serial, currentId) {
-            if(["1", "rohs", "n/a", "none"].includes(serial.toLowerCase().trim())) return null;
-            return inventory.find(item => item.serial.toLowerCase().trim() === serial.toLowerCase().trim() && item.id !== parseInt(currentId));
+            const cleanSerial = serial.toString().toLowerCase().trim();
+            if(["1", "rohs", "n/a", "none", ""].includes(cleanSerial)) return null;
+            
+            return inventory.find(item => {
+                const itemSerial = item.serial.toString().toLowerCase().trim();
+                return itemSerial === cleanSerial && item.id !== parseInt(currentId);
+            });
         }
 
         function saveAssetForm(e) {
             e.preventDefault();
+            
             const id = document.getElementById('formAssetId').value;
             const employee = document.getElementById('formEmployee').value.trim();
             const category = document.getElementById('formCategory').value;
@@ -521,14 +519,17 @@
             const serial = document.getElementById('formSerial').value.trim();
             const status = document.getElementById('formStatus').value;
 
-            // Search-ready strict validation check
+            // Strict duplicate scanning system check
             const duplicateConflict = checkDuplicateSerial(serial, id);
+            
             if (duplicateConflict) {
+                // Open Alert Modal cleanly instead of hanging
                 document.getElementById('dupSerialText').innerText = duplicateConflict.serial;
                 document.getElementById('dupEmployeeText').innerText = duplicateConflict.employee;
                 document.getElementById('dupItemText').innerText = duplicateConflict.item;
+                
                 document.getElementById('duplicateModal').classList.remove('hidden');
-                return;
+                return false; 
             }
 
             if (id === "") {
