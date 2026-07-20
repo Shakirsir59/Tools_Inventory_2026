@@ -42,12 +42,12 @@
             <header class="bg-white shadow-sm px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-800">North Region Directory</h1>
-                    <p class="text-sm text-gray-500">Live monitoring, duplicate serial tracker & asset validation</p>
+                    <p class="text-sm text-gray-500">Live monitoring, hardware duplicate tracker & asset condition manager</p>
                 </div>
                 <!-- Search Bar -->
                 <div class="relative w-full sm:w-72">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search employee, category, tool..." 
+                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search employee, tool, condition..." 
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50">
                 </div>
             </header>
@@ -76,22 +76,30 @@
                             </div>
                         </div>
                         
-                        <!-- Add Employee Form -->
+                        <!-- Add/Modify Employee Form -->
                         <div class="sm:col-span-2 bg-white p-6 rounded-2xl shadow-xs border border-gray-100">
                             <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Register / Modify Asset Record</h2>
                             <form id="employeeForm" onsubmit="saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input type="hidden" id="editIndex" value="-1">
                                 <input type="text" id="empName" placeholder="Employee Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
-                                <!-- Dynamic Asset Category Dropdown Selection -->
                                 <select id="empTeam" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
                                     <option value="" disabled selected>Select Category</option>
                                     <option value="Telecom Hardware">Telecom Hardware</option>
                                     <option value="Rigger Safety">Rigger Safety</option>
                                 </select>
                                 
-                                <input type="text" id="empTool" placeholder="Model / Tool Name (e.g. Zain SIM, HP Z Book)" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                <input type="text" id="empTool" placeholder="Model / Tool Name (e.g. Spanner 13, Zain SIM)" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 <input type="text" id="empSerial" placeholder="Serial / IMEI / Quantity" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                
+                                <!-- Updated Dropdown Validation Field for Condition Status -->
+                                <select id="empStatus" required class="sm:col-span-2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                                    <option value="" disabled selected>Select Validation Status</option>
+                                    <option value="Available">Available</option>
+                                    <option value="Need">Need</option>
+                                    <option value="OLD">OLD</option>
+                                    <option value="Broken">Broken</option>
+                                </select>
                                 
                                 <button type="submit" id="submitBtn" class="sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer">
                                     Save Record to System
@@ -131,15 +139,16 @@
                         <table class="w-full text-left border-collapse" id="rosterTable">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
-                                    <th class="px-6 py-3.5">Employee Name (Click to Validate)</th>
+                                    <th class="px-6 py-3.5">Employee Name</th>
                                     <th class="px-6 py-3.5">Asset Category</th>
                                     <th class="px-6 py-3.5">Model / Tool Name</th>
                                     <th class="px-6 py-3.5">Serial / IMEI / Qty</th>
+                                    <th class="px-6 py-3.5">Condition Status</th>
                                     <th class="px-6 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="employeeTableBody" class="divide-y divide-gray-100 text-sm">
-                                <!-- Dynamic entries from your accurate file loaded here -->
+                                <!-- Dynamic entries from Excel loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -164,11 +173,11 @@
 
     <!-- Duplicate System Alert Popup -->
     <div id="duplicateModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 m-4 border-2 border-amber-500 text-center">
-            <div class="text-amber-500 text-4xl mb-2"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <h3 class="text-lg font-bold text-slate-900">Duplicate Asset Alert!</h3>
-            <p id="duplicateModalMessage" class="text-sm text-gray-600 my-3 font-medium"></p>
-            <button onclick="closeDuplicateModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 rounded-lg transition text-sm cursor-pointer">Review Configuration</button>
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 m-4 border-2 border-rose-600 text-center">
+            <div class="text-rose-600 text-5xl mb-3"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 class="text-xl font-bold text-slate-900">Duplicate Asset Alert!</h3>
+            <p id="duplicateModalMessage" class="text-sm text-gray-600 my-3 font-medium px-2 leading-relaxed"></p>
+            <button onclick="closeDuplicateModal()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-lg transition text-sm cursor-pointer mt-2 shadow-xs">Review Configuration</button>
         </div>
     </div>
 
@@ -176,114 +185,114 @@
         // Administrative Security Password
         const SECURE_PASSWORD = "admin123";
 
-        // COMPLETE AUTHENTIC INVENTORY FROM YOUR EXCEL SHEET
+        // COMPLETE DATA WITH DYNAMIC CLEANUP MAP FOR SYSTEM STATUS VALUES
         let employees = [
-            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Z Book", serial: "5CG2421T3F" },
-            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
-            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Laptop Charger", serial: "4CH24205WL" },
-            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446843" },
-            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448980" },
-            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "HP Z Book", serial: "5CG2421T85" },
-            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "65W Charger", serial: "1" },
-            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
-            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446758" },
-            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448050" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP ProBook", serial: "5CG0462CX0" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP Charger", serial: "1" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446789" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448903" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "580174700" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446967" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Kingston USB Hub", serial: "1" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044378535" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044379731" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044539847" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Samsung S9", serial: "354663104805962" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Samsung S9", serial: "354663104812380" },
-            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei CPE", serial: "867206040945128" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Vest", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Working Gloves", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
-            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Car Inverter", serial: "1" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP ProBook", serial: "5CG1152Y1V" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP Charger", serial: "1" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044378261" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044377792" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122746814" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122784532" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei Mate 30 Pro", serial: "862781041935423" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448269" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446971" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446902" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446981" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Kensington USB Hub", serial: "1" },
-            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Anker USB Hub", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Helmet", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
-            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Car Inverter", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Elite Book", serial: "5CG0462CY2" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Charger", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448818" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592449627" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448924" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446963" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Kensington USB Hub", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Anker USB Hub", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044497160" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044529418" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122742953" },
-            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Samsung S23", serial: "355928813629956" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Vest", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Helmet", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Working Gloves", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
-            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Car Inverter", serial: "1" },
-            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "HP Elite Book 840 G8", serial: "5CG2138VYF" },
-            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "65W Charger", serial: "1" },
-            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
-            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446849" },
-            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448969" },
-            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "HP Elite Book 840 G8", serial: "5CG2138WDS" },
-            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "65W Charger", serial: "1" },
-            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
-            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
-            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448592" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "HP Laptop", serial: "5CG2471J9M" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Tools Bag", serial: "1" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075246733" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075362621" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075363660" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075363009" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446936" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446923" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446921" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044531463" },
-            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044383790" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Helmet", serial: "1" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
-            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Car Inverter", serial: "1" }
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Z Book", serial: "5CG2421T3F", status: "Available" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS", status: "Available" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Laptop Charger", serial: "4CH24205WL", status: "Available" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Available" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446843", status: "Available" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448980", status: "Available" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "HP Z Book", serial: "5CG2421T85", status: "Available" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "65W Charger", serial: "1", status: "Available" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS", status: "Available" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Need" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446758", status: "Available" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448050", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP ProBook", serial: "5CG0462CX0", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP Charger", serial: "1", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Need" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446789", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448903", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "580174700", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446967", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Kingston USB Hub", serial: "1", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044378535", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044379731", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044539847", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Samsung S9", serial: "354663104805962", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Samsung S9", serial: "354663104812380", status: "Available" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei CPE", serial: "867206040945128", status: "Available" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Belt", serial: "1", status: "OLD" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Shoe", serial: "1", status: "OLD" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Vest", serial: "1", status: "OLD" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Working Gloves", serial: "1", status: "Available" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 17", serial: "1", status: "OLD" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 19", serial: "1", status: "OLD" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 13", serial: "1", status: "Need" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Car Inverter", serial: "1", status: "OLD" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP ProBook", serial: "5CG1152Y1V", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP Charger", serial: "1", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Need" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044378261", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044377792", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122746814", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122784532", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei Mate 30 Pro", serial: "862781041935423", status: "Broken" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448269", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446971", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446902", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446981", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Kensington USB Hub", serial: "1", status: "Available" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Anker USB Hub", serial: "1", status: "Available" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Belt", serial: "1", status: "OLD" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Shoe", serial: "1", status: "OLD" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Helmet", serial: "1", status: "OLD" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 17", serial: "1", status: "Available" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 19", serial: "1", status: "Available" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 13", serial: "1", status: "Need" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Car Inverter", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Elite Book", serial: "5CG0462CY2", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Charger", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Need" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448818", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592449627", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448924", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446963", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Kensington USB Hub", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Anker USB Hub", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044497160", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044529418", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122742953", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Samsung S23", serial: "355928813629956", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Belt", serial: "1", status: "Need" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Shoe", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Vest", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Helmet", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Working Gloves", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 17", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 19", serial: "1", status: "Available" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 13", serial: "1", status: "Need" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Car Inverter", serial: "1", status: "Available" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "HP Elite Book 840 G8", serial: "5CG2138VYF", status: "Available" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "65W Charger", serial: "1", status: "Available" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS", status: "Available" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Need" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446849", status: "Available" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448969", status: "Available" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "HP Elite Book 840 G8", serial: "5CG2138WDS", status: "Available" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "65W Charger", serial: "1", status: "Available" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS", status: "Available" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "HP Bag", serial: "1", status: "Need" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448592", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "HP Laptop", serial: "5CG2471J9M", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Tools Bag", serial: "1", status: "Need" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075246733", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075362621", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075363660", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075363009", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446936", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446923", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446921", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044531463", status: "Available" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044383790", status: "Available" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Belt", serial: "1", status: "OLD" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Shoe", serial: "1", status: "OLD" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Helmet", serial: "1", status: "OLD" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 17", serial: "1", status: "OLD" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 19", serial: "1", status: "OLD" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 13", serial: "1", status: "Need" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Car Inverter", serial: "1", status: "Available" }
         ];
 
         let chartInstance = null;
@@ -297,6 +306,13 @@
             tbody.innerHTML = "";
 
             employees.forEach((emp, index) => {
+                // Determine styling badge for condition status
+                let statusBadge = "";
+                if(emp.status === "Available") statusBadge = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                else if(emp.status === "Need") statusBadge = "bg-amber-100 text-amber-800 border-amber-200";
+                else if(emp.status === "OLD") statusBadge = "bg-slate-200 text-slate-800 border-slate-300";
+                else if(emp.status === "Broken") statusBadge = "bg-rose-100 text-rose-800 border-rose-200";
+
                 const row = document.createElement("tr");
                 row.className = "hover:bg-slate-50/80 transition-colors group";
                 row.innerHTML = `
@@ -312,6 +328,11 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 font-mono text-gray-600">${emp.serial}</td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusBadge}">
+                            ${emp.status}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                         <button onclick="secureAction('edit', ${index})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition text-xs font-medium cursor-pointer">
                             <i class="fa-solid fa-lock text-[10px] mr-1"></i>Edit
@@ -330,8 +351,6 @@
 
         function updateMetrics() {
             document.getElementById("totalCount").innerText = employees.length;
-            
-            // Extract distinct unique names
             const uniqueStaff = [...new Set(employees.map(e => e.name))].length;
             document.getElementById("totalStaff").innerText = uniqueStaff;
         }
@@ -343,20 +362,24 @@
             const team = document.getElementById("empTeam").value.trim();
             const tool = document.getElementById("empTool").value.trim();
             const serial = document.getElementById("empSerial").value.trim();
+            const status = document.getElementById("empStatus").value.trim();
 
-            // Duplicate Scan Checker for matching hardware/SIM unique IDs (skipping text placeholders like '1' or 'ROHS')
-            if (serial.length > 4 && serial.toLowerCase() !== 'rohs') {
+            // Strict Validation Rule: Exclusively track duplicates for SIMs, Mobiles, and Laptop serial numbers
+            const lowerTool = tool.toLowerCase();
+            const isCriticalHardware = lowerTool.includes('sim') || lowerTool.includes('book') || lowerTool.includes('laptop') || lowerTool.includes('p40') || lowerTool.includes('s9') || lowerTool.includes('s22') || lowerTool.includes('s23') || lowerTool.includes('note');
+
+            if (isCriticalHardware && serial.length > 3 && serial.toLowerCase() !== 'rohs') {
                 let duplicate = employees.find((emp, idx) => emp.serial.toLowerCase() === serial.toLowerCase() && idx !== index);
                 if (duplicate) {
-                    showDuplicateModal(`Same Serial Asset Found! Serial ID "${serial}" is already tracked under "${duplicate.name}" inside ${duplicate.team}.`);
+                    showDuplicateModal(`Hardware Serial ID Configuration Conflict! The unique ID "${serial}" is already tracked to "${duplicate.name}" for item "${duplicate.tool}".`);
                     return;
                 }
             }
 
             if(index === -1) {
-                employees.push({ name, team, tool, serial });
+                employees.push({ name, team, tool, serial, status });
             } else {
-                employees[index] = { name, team, tool, serial };
+                employees[index] = { name, team, tool, serial, status };
                 document.getElementById("editIndex").value = "-1";
                 document.getElementById("submitBtn").innerText = "Save Record to System";
                 document.getElementById("submitBtn").className = "sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
@@ -367,7 +390,7 @@
         }
 
         function secureAction(type, index) {
-            const pass = prompt("Enter administrative Security Password for validation adjustments:");
+            const pass = prompt("Enter administrative Security Password for log adjustments:");
             if (pass === null) return;
             
             if (pass === SECURE_PASSWORD) {
@@ -378,6 +401,7 @@
                     document.getElementById("empTeam").value = emp.team;
                     document.getElementById("empTool").value = emp.tool;
                     document.getElementById("empSerial").value = emp.serial;
+                    document.getElementById("empStatus").value = emp.status;
 
                     const btn = document.getElementById("submitBtn");
                     btn.innerText = "Authorize & Save Changes";
@@ -402,6 +426,7 @@
                     <p><strong>Asset Category:</strong> <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs font-bold">${emp.team}</span></p>
                     <p><strong>Model / Tool Name:</strong> <span class="text-gray-700">${emp.tool}</span></p>
                     <p><strong>Serial / IMEI / Qty:</strong> <span class="text-slate-900 font-mono text-xs bg-gray-100 px-2 py-1 rounded">${emp.serial}</span></p>
+                    <p><strong>Assigned Condition:</strong> <span class="text-slate-900 font-semibold">${emp.status}</span></p>
                 </div>
             `;
             modal.classList.remove("hidden");
@@ -423,6 +448,7 @@
                     const match = emp.name.toLowerCase().includes(query) || 
                                   emp.team.toLowerCase().includes(query) || 
                                   emp.tool.toLowerCase().includes(query) ||
+                                  emp.status.toLowerCase().includes(query) ||
                                   emp.serial.toLowerCase().includes(query);
                     row.style.display = match ? "" : "none";
                 }
@@ -431,12 +457,12 @@
 
         function exportToExcel() {
             const formatted = employees.map(e => ({
-                "Employee Name": e.name, "Asset Category": e.team, "Model/Tool Name": e.tool, "Serial/IMEI/Quantity": e.serial
+                "Employee Name": e.name, "Asset Category": e.team, "Model/Tool Name": e.tool, "Serial/IMEI/Quantity": e.serial, "Condition Status": e.status
             }));
             const ws = XLSX.utils.json_to_sheet(formatted);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "North Region Stock");
-            XLSX.writeFile(wb, "North_Region_Inventory.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "North Region Inventory Log");
+            XLSX.writeFile(wb, "North_Region_Inventory_v2.xlsx");
         }
 
         function exportToPDF() {
@@ -444,11 +470,11 @@
             const doc = new jsPDF();
             doc.text("North Region Asset Directory Master Log", 14, 15);
             doc.autoTable({
-                head: [['Employee Name', 'Asset Category', 'Model/Tool Name', 'Serial/IMEI/Quantity']],
-                body: employees.map(e => [e.name, e.team, e.tool, e.serial]),
+                head: [['Employee Name', 'Asset Category', 'Model/Tool Name', 'Serial/IMEI/Quantity', 'Status']],
+                body: employees.map(e => [e.name, e.team, e.tool, e.serial, e.status]),
                 startY: 22
             });
-            doc.save("North_Region_Inventory_Master.pdf");
+            doc.save("North_Region_Inventory_v2.pdf");
         }
 
         function updatePieChart() {
