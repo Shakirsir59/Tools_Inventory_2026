@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Employee Asset Dashboard</title>
+    <title>North Region Asset Inventory Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js for Pie Chart -->
@@ -47,7 +47,7 @@
                 <!-- Search Bar -->
                 <div class="relative w-full sm:w-72">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search employee, team, serial..." 
+                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search employee, category, tool..." 
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50">
                 </div>
             </header>
@@ -59,42 +59,39 @@
                     <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Active Staff</p>
+                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Inventory Records</p>
                                 <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalCount">0</h3>
                             </div>
                             <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl text-xl">
-                                <i class="fa-solid fa-user-group"></i>
+                                <i class="fa-solid fa-list-check"></i>
                             </div>
                         </div>
                         <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Monitored Assets</p>
-                                <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalTools">0</h3>
+                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Unique Staff Members</p>
+                                <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalStaff">0</h3>
                             </div>
                             <div class="p-4 bg-blue-50 text-blue-600 rounded-2xl text-xl">
-                                <i class="fa-solid fa-mobile-screen-button"></i>
+                                <i class="fa-solid fa-user-gear"></i>
                             </div>
                         </div>
                         
                         <!-- Add Employee Form -->
                         <div class="sm:col-span-2 bg-white p-6 rounded-2xl shadow-xs border border-gray-100">
-                            <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Register / Modify Record</h2>
+                            <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Register / Modify Asset Record</h2>
                             <form id="employeeForm" onsubmit="saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input type="hidden" id="editIndex" value="-1">
                                 <input type="text" id="empName" placeholder="Employee Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
-                                <!-- Team Dropdown Selection -->
+                                <!-- Dynamic Asset Category Dropdown Selection -->
                                 <select id="empTeam" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
-                                    <option value="" disabled selected>Select Team Roll</option>
-                                    <option value="Rigger">Rigger</option>
-                                    <option value="Technician">Technician</option>
-                                    <option value="Operations">Operations</option>
-                                    <option value="Engineering">Engineering</option>
-                                    <option value="Logistics">Logistics</option>
+                                    <option value="" disabled selected>Select Category</option>
+                                    <option value="Telecom Hardware">Telecom Hardware</option>
+                                    <option value="Rigger Safety">Rigger Safety</option>
                                 </select>
                                 
-                                <input type="text" id="empTool" placeholder="Assigned Item (SIM/Laptop)" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <input type="text" id="empSerial" placeholder="SIM/Asset Serial Number" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                <input type="text" id="empTool" placeholder="Model / Tool Name (e.g. Zain SIM, HP Z Book)" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                <input type="text" id="empSerial" placeholder="Serial / IMEI / Quantity" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
                                 <button type="submit" id="submitBtn" class="sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer">
                                     Save Record to System
@@ -105,7 +102,7 @@
 
                     <!-- Pie Chart Box -->
                     <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex flex-col items-center justify-center">
-                        <h2 class="text-lg font-semibold mb-2 text-slate-800 self-start w-full text-center">Team Distribution</h2>
+                        <h2 class="text-lg font-semibold mb-2 text-slate-800 self-start w-full text-center">Asset Class Distribution</h2>
                         <div class="w-full max-w-[220px] aspect-square">
                             <canvas id="teamChart"></canvas>
                         </div>
@@ -135,14 +132,14 @@
                             <thead>
                                 <tr class="bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
                                     <th class="px-6 py-3.5">Employee Name (Click to Validate)</th>
-                                    <th class="px-6 py-3.5">Team</th>
-                                    <th class="px-6 py-3.5">Assigned Asset</th>
-                                    <th class="px-6 py-3.5">SIM / Serial Number</th>
+                                    <th class="px-6 py-3.5">Asset Category</th>
+                                    <th class="px-6 py-3.5">Model / Tool Name</th>
+                                    <th class="px-6 py-3.5">Serial / IMEI / Qty</th>
                                     <th class="px-6 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="employeeTableBody" class="divide-y divide-gray-100 text-sm">
-                                <!-- Dynamic entries -->
+                                <!-- Dynamic entries from your accurate file loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -176,16 +173,117 @@
     </div>
 
     <script>
-        // System Protection Credentials
+        // Administrative Security Password
         const SECURE_PASSWORD = "admin123";
 
-        // Integrated Loaded Data from your inventory file
+        // COMPLETE AUTHENTIC INVENTORY FROM YOUR EXCEL SHEET
         let employees = [
-            { name: "Naveed", team: "Rigger", tool: "Zain SIM", serial: "9665000001" },
-            { name: "Sajid Khan", team: "Technician", tool: "STC SIM", serial: "9665000002" },
-            { name: "Imran Malik", team: "Operations", tool: "Mobily SIM", serial: "9665000003" },
-            { name: "Shakir Ali", team: "Engineering", tool: "Laptop Latitude", serial: "LPT-7420-XYZ" },
-            { name: "Yasir Ahmed", team: "Logistics", tool: "Mobile Device", serial: "SRL-IMEI-9988" }
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Z Book", serial: "5CG2421T3F" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Laptop Charger", serial: "4CH24205WL" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446843" },
+            { name: "Majid Mubarak Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448980" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "HP Z Book", serial: "5CG2421T85" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "65W Charger", serial: "1" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446758" },
+            { name: "Amer Mohammed", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448050" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP ProBook", serial: "5CG0462CX0" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP Charger", serial: "1" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446789" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448903" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "580174700" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446967" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Kingston USB Hub", serial: "1" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044378535" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044379731" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044539847" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Samsung S9", serial: "354663104805962" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Samsung S9", serial: "354663104812380" },
+            { name: "Yasir Nadeem", team: "Telecom Hardware", tool: "Huawei CPE", serial: "867206040945128" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Safety Vest", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Working Gloves", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
+            { name: "Yasir Nadeem", team: "Rigger Safety", tool: "Car Inverter", serial: "1" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP ProBook", serial: "5CG1152Y1V" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP Charger", serial: "1" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044378261" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044377792" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122746814" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122784532" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Huawei Mate 30 Pro", serial: "862781041935423" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448269" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446971" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446902" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446981" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Kensington USB Hub", serial: "1" },
+            { name: "Saeed Iqbal", team: "Telecom Hardware", tool: "Anker USB Hub", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Safety Helmet", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
+            { name: "Saeed Iqbal", team: "Rigger Safety", tool: "Car Inverter", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Elite Book", serial: "5CG0462CY2" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Charger", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448818" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592449627" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448924" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446963" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Kensington USB Hub", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Anker USB Hub", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044497160" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044529418" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Samsung S22", serial: "354839122742953" },
+            { name: "Muhammad Sajawal", team: "Telecom Hardware", tool: "Samsung S23", serial: "355928813629956" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Vest", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Safety Helmet", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Working Gloves", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
+            { name: "Muhammad Sajawal", team: "Rigger Safety", tool: "Car Inverter", serial: "1" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "HP Elite Book 840 G8", serial: "5CG2138VYF" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "65W Charger", serial: "1" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446849" },
+            { name: "Fuaad Alnakhli", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448969" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "HP Elite Book 840 G8", serial: "5CG2138WDS" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "65W Charger", serial: "1" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "Ethernet Type C", serial: "ROHS" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "HP Bag", serial: "1" },
+            { name: "Majed AlHarbi", team: "Telecom Hardware", tool: "Zain SIM", serial: "592448592" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "HP Laptop", serial: "5CG2471J9M" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Tools Bag", serial: "1" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075246733" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075362621" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075363660" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Samsung NOTE 5", serial: "352560075363009" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446936" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446923" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Zain SIM", serial: "592446921" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044531463" },
+            { name: "Naveed Ahmad", team: "Telecom Hardware", tool: "Huawei P40", serial: "863725044383790" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Belt", serial: "1" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Shoe", serial: "1" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Safety Helmet", serial: "1" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 17", serial: "1" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 19", serial: "1" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Spanner 13", serial: "1" },
+            { name: "Naveed Ahmad", team: "Rigger Safety", tool: "Car Inverter", serial: "1" }
         ];
 
         let chartInstance = null;
@@ -232,7 +330,10 @@
 
         function updateMetrics() {
             document.getElementById("totalCount").innerText = employees.length;
-            document.getElementById("totalTools").innerText = employees.length;
+            
+            // Extract distinct unique names
+            const uniqueStaff = [...new Set(employees.map(e => e.name))].length;
+            document.getElementById("totalStaff").innerText = uniqueStaff;
         }
 
         function saveEmployee(e) {
@@ -243,15 +344,16 @@
             const tool = document.getElementById("empTool").value.trim();
             const serial = document.getElementById("empSerial").value.trim();
 
-            // Duplicate Scan Validation Engine (SIM, Mobile, or Laptop serial mismatch checking)
-            let duplicate = employees.find((emp, idx) => emp.serial.toLowerCase() === serial.toLowerCase() && idx !== index);
-            if (duplicate) {
-                showDuplicateModal(`SIM or Device Serial Number "${serial}" inventory match duplicate ho gaya hai! Yeh asset pehle se "${duplicate.name}" (${duplicate.team}) ko assigned hai.`);
-                return;
+            // Duplicate Scan Checker for matching hardware/SIM unique IDs (skipping text placeholders like '1' or 'ROHS')
+            if (serial.length > 4 && serial.toLowerCase() !== 'rohs') {
+                let duplicate = employees.find((emp, idx) => emp.serial.toLowerCase() === serial.toLowerCase() && idx !== index);
+                if (duplicate) {
+                    showDuplicateModal(`Same Serial Asset Found! Serial ID "${serial}" is already tracked under "${duplicate.name}" inside ${duplicate.team}.`);
+                    return;
+                }
             }
 
             if(index === -1) {
-                // Open add registration
                 employees.push({ name, team, tool, serial });
             } else {
                 employees[index] = { name, team, tool, serial };
@@ -264,9 +366,8 @@
             renderDashboard();
         }
 
-        // Action Lock Gate for Secure Modifications
         function secureAction(type, index) {
-            const pass = prompt("Modifications complete karne ke liye administrative Security Password enter karein:");
+            const pass = prompt("Enter administrative Security Password for validation adjustments:");
             if (pass === null) return;
             
             if (pass === SECURE_PASSWORD) {
@@ -287,21 +388,20 @@
                     renderDashboard();
                 }
             } else {
-                alert("Galat Password! Access and Modification Denied.");
+                alert("Incorrect Password! Access denied.");
             }
         }
 
-        // Each employee click verification handler instead of lists
         function validateEmployee(index) {
             const emp = employees[index];
             const modal = document.getElementById("validationModal");
             const content = document.getElementById("modalContent");
             content.innerHTML = `
                 <div class="space-y-2">
-                    <p><strong>Resource Name:</strong> <span class="text-slate-900 font-medium">${emp.name}</span></p>
-                    <p><strong>Assigned Team Unit:</strong> <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs font-bold">${emp.team}</span></p>
-                    <p><strong>Configured Ecosystem:</strong> <span class="text-gray-700">${emp.tool}</span></p>
-                    <p><strong>Inventory Serial ID:</strong> <span class="text-slate-900 font-mono text-xs bg-gray-100 px-2 py-1 rounded">${emp.serial}</span></p>
+                    <p><strong>Employee Name:</strong> <span class="text-slate-900 font-medium">${emp.name}</span></p>
+                    <p><strong>Asset Category:</strong> <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs font-bold">${emp.team}</span></p>
+                    <p><strong>Model / Tool Name:</strong> <span class="text-gray-700">${emp.tool}</span></p>
+                    <p><strong>Serial / IMEI / Qty:</strong> <span class="text-slate-900 font-mono text-xs bg-gray-100 px-2 py-1 rounded">${emp.serial}</span></p>
                 </div>
             `;
             modal.classList.remove("hidden");
@@ -331,24 +431,24 @@
 
         function exportToExcel() {
             const formatted = employees.map(e => ({
-                "Employee Name": e.name, "Team Category": e.team, "Assigned Asset": e.tool, "SIM or Serial ID": e.serial
+                "Employee Name": e.name, "Asset Category": e.team, "Model/Tool Name": e.tool, "Serial/IMEI/Quantity": e.serial
             }));
             const ws = XLSX.utils.json_to_sheet(formatted);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "North Region");
+            XLSX.utils.book_append_sheet(wb, ws, "North Region Stock");
             XLSX.writeFile(wb, "North_Region_Inventory.xlsx");
         }
 
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("North Region Asset Inventory Master Report", 14, 15);
+            doc.text("North Region Asset Directory Master Log", 14, 15);
             doc.autoTable({
-                head: [['Employee Name', 'Team Group', 'Assigned Asset', 'SIM/Serial Identifier']],
+                head: [['Employee Name', 'Asset Category', 'Model/Tool Name', 'Serial/IMEI/Quantity']],
                 body: employees.map(e => [e.name, e.team, e.tool, e.serial]),
                 startY: 22
             });
-            doc.save("North_Region_Inventory.pdf");
+            doc.save("North_Region_Inventory_Master.pdf");
         }
 
         function updatePieChart() {
@@ -365,7 +465,7 @@
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'],
+                        backgroundColor: ['#10b981', '#3b82f6'],
                         borderWidth: 2, borderColor: '#ffffff'
                     }]
                 },
