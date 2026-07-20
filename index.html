@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Employee & Asset Dashboard</title>
+    <title>Advanced Employee Asset Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js for Pie Chart -->
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Excel Export Library (SheetJS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- PDF Export Libraries (jsPDF + AutoTable) -->
+    <!-- PDF Export Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
@@ -32,7 +32,7 @@
                 </nav>
             </div>
             <div class="text-xs text-slate-400 border-t border-slate-800 pt-4">
-                Security & Asset Tracking Active
+                Region Management Active
             </div>
         </div>
 
@@ -41,13 +41,13 @@
             <!-- Top Header -->
             <header class="bg-white shadow-sm px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Employee & Asset Directory</h1>
-                    <p class="text-sm text-gray-500">Live monitoring, inventory conflict tracking & secure actions</p>
+                    <h1 class="text-2xl font-bold text-slate-800">North Region Directory</h1>
+                    <p class="text-sm text-gray-500">Live monitoring, duplicate serial tracker & asset validation</p>
                 </div>
                 <!-- Search Bar -->
                 <div class="relative w-full sm:w-72">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search name, team, sim, serial..." 
+                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search employee, team, serial..." 
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50">
                 </div>
             </header>
@@ -59,7 +59,7 @@
                     <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Headcount</p>
+                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Active Staff</p>
                                 <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalCount">0</h3>
                             </div>
                             <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl text-xl">
@@ -68,7 +68,7 @@
                         </div>
                         <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Tracked Devices / Sims</p>
+                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Monitored Assets</p>
                                 <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalTools">0</h3>
                             </div>
                             <div class="p-4 bg-blue-50 text-blue-600 rounded-2xl text-xl">
@@ -78,14 +78,14 @@
                         
                         <!-- Add Employee Form -->
                         <div class="sm:col-span-2 bg-white p-6 rounded-2xl shadow-xs border border-gray-100">
-                            <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Add / Update Record</h2>
+                            <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Register / Modify Record</h2>
                             <form id="employeeForm" onsubmit="saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input type="hidden" id="editIndex" value="-1">
                                 <input type="text" id="empName" placeholder="Employee Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
-                                <!-- Team Dropdown List representing all teams -->
+                                <!-- Team Dropdown Selection -->
                                 <select id="empTeam" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
-                                    <option value="" disabled selected>Select Team</option>
+                                    <option value="" disabled selected>Select Team Roll</option>
                                     <option value="Rigger">Rigger</option>
                                     <option value="Technician">Technician</option>
                                     <option value="Operations">Operations</option>
@@ -93,11 +93,11 @@
                                     <option value="Logistics">Logistics</option>
                                 </select>
                                 
-                                <input type="text" id="empTool" placeholder="Assigned Tool / SIM / Asset Details" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <input type="text" id="empSerial" placeholder="SIM or Mobile Serial Number" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                <input type="text" id="empTool" placeholder="Assigned Item (SIM/Laptop)" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                <input type="text" id="empSerial" placeholder="SIM/Asset Serial Number" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
                                 <button type="submit" id="submitBtn" class="sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer">
-                                    Add Member to Roster
+                                    Save Record to System
                                 </button>
                             </form>
                         </div>
@@ -112,7 +112,7 @@
                     </div>
                 </div>
 
-                <!-- Action Toolbar for Exporting Data -->
+                <!-- Export Toolbar -->
                 <div class="flex flex-wrap gap-2 justify-end bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
                     <button onclick="exportToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer transition">
                         <i class="fa-solid fa-file-excel text-sm"></i> Export to Excel
@@ -122,10 +122,10 @@
                     </button>
                 </div>
 
-                <!-- Table Section -->
+                <!-- Master Table Roster -->
                 <div class="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h2 class="text-lg font-semibold text-slate-800">Master Roster</h2>
+                        <h2 class="text-lg font-semibold text-slate-800">Master Data</h2>
                         <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">
                             <i class="fa-solid fa-circle text-[8px] mr-1 align-middle animate-pulse text-emerald-600"></i> Live View Protected
                         </span>
@@ -136,13 +136,13 @@
                                 <tr class="bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
                                     <th class="px-6 py-3.5">Employee Name (Click to Validate)</th>
                                     <th class="px-6 py-3.5">Team</th>
-                                    <th class="px-6 py-3.5">Assigned Tool/Asset</th>
+                                    <th class="px-6 py-3.5">Assigned Asset</th>
                                     <th class="px-6 py-3.5">SIM / Serial Number</th>
                                     <th class="px-6 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="employeeTableBody" class="divide-y divide-gray-100 text-sm">
-                                <!-- Loaded dynamically -->
+                                <!-- Dynamic entries -->
                             </tbody>
                         </table>
                     </div>
@@ -151,12 +151,12 @@
         </div>
     </div>
 
-    <!-- Validation Modal Box -->
+    <!-- Validation Detail Modal -->
     <div id="validationModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50">
         <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 m-4 border border-gray-100">
             <div class="flex items-center gap-3 text-emerald-600 mb-4">
                 <div class="p-3 bg-emerald-50 rounded-full text-xl"><i class="fa-solid fa-shield-check"></i></div>
-                <h3 class="text-xl font-bold text-slate-800">Validation Verified</h3>
+                <h3 class="text-xl font-bold text-slate-800">Validation System</h3>
             </div>
             <div id="modalContent" class="space-y-3 my-4 text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-200/60"></div>
             <div class="flex justify-end mt-6">
@@ -165,23 +165,27 @@
         </div>
     </div>
 
-    <!-- Duplicate Alert Custom Popup Modal -->
+    <!-- Duplicate System Alert Popup -->
     <div id="duplicateModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 m-4 border-2 border-amber-500 text-center animate-bounce-short">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 m-4 border-2 border-amber-500 text-center">
             <div class="text-amber-500 text-4xl mb-2"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <h3 class="text-lg font-bold text-slate-900">Duplicate Asset Detected!</h3>
-            <p id="duplicateModalMessage" class="text-sm text-gray-600 my-3"></p>
+            <h3 class="text-lg font-bold text-slate-900">Duplicate Asset Alert!</h3>
+            <p id="duplicateModalMessage" class="text-sm text-gray-600 my-3 font-medium"></p>
             <button onclick="closeDuplicateModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 rounded-lg transition text-sm cursor-pointer">Review Configuration</button>
         </div>
     </div>
 
     <script>
-        // Default Master Password Set to: "admin123"
+        // System Protection Credentials
         const SECURE_PASSWORD = "admin123";
 
-        // Initialized Data from your context structures
+        // Integrated Loaded Data from your inventory file
         let employees = [
-            { name: "Naveed", team: "Rigger", tool: "Zain SIM", serial: "9665000001" }
+            { name: "Naveed", team: "Rigger", tool: "Zain SIM", serial: "9665000001" },
+            { name: "Sajid Khan", team: "Technician", tool: "STC SIM", serial: "9665000002" },
+            { name: "Imran Malik", team: "Operations", tool: "Mobily SIM", serial: "9665000003" },
+            { name: "Shakir Ali", team: "Engineering", tool: "Laptop Latitude", serial: "LPT-7420-XYZ" },
+            { name: "Yasir Ahmed", team: "Logistics", tool: "Mobile Device", serial: "SRL-IMEI-9988" }
         ];
 
         let chartInstance = null;
@@ -199,8 +203,8 @@
                 row.className = "hover:bg-slate-50/80 transition-colors group";
                 row.innerHTML = `
                     <td class="px-6 py-4">
-                        <button onclick="validateEmployee(${index})" class="font-medium text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer text-left focus:outline-none">
-                            <i class="fa-solid fa-circle-check text-xs mr-2 opacity-60 group-hover:opacity-100 transition"></i>${emp.name}
+                        <button onclick="validateEmployee(${index})" class="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline cursor-pointer text-left focus:outline-none flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check text-xs opacity-70"></i> ${emp.name}
                         </button>
                     </td>
                     <td class="px-6 py-4 text-gray-600 font-medium">${emp.team}</td>
@@ -211,11 +215,11 @@
                     </td>
                     <td class="px-6 py-4 font-mono text-gray-600">${emp.serial}</td>
                     <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                        <button onclick="secureAction('edit', ${index})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition inline-flex items-center gap-1 cursor-pointer text-xs font-medium">
-                            <i class="fa-solid fa-lock text-[10px] opacity-70"></i> <i class="fa-solid fa-pen-to-square"></i> Edit
+                        <button onclick="secureAction('edit', ${index})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition text-xs font-medium cursor-pointer">
+                            <i class="fa-solid fa-lock text-[10px] mr-1"></i>Edit
                         </button>
-                        <button onclick="secureAction('remove', ${index})" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition inline-flex items-center gap-1 cursor-pointer text-xs font-medium">
-                            <i class="fa-solid fa-lock text-[10px] opacity-70"></i> <i class="fa-solid fa-trash"></i> Remove
+                        <button onclick="secureAction('remove', ${index})" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition text-xs font-medium cursor-pointer">
+                            <i class="fa-solid fa-lock text-[10px] mr-1"></i>Remove
                         </button>
                     </td>
                 `;
@@ -231,7 +235,6 @@
             document.getElementById("totalTools").innerText = employees.length;
         }
 
-        // Duplicate Check Verification Engine
         function saveEmployee(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
@@ -240,21 +243,20 @@
             const tool = document.getElementById("empTool").value.trim();
             const serial = document.getElementById("empSerial").value.trim();
 
-            // Duplicate Match Scanner
-            let duplicateFound = employees.find((emp, idx) => emp.serial === serial && idx !== index);
-            if (duplicateFound) {
-                showDuplicateModal(`Same device or serial sequence "${serial}" is already registered to ${duplicateFound.name} (${duplicateFound.team}).`);
+            // Duplicate Scan Validation Engine (SIM, Mobile, or Laptop serial mismatch checking)
+            let duplicate = employees.find((emp, idx) => emp.serial.toLowerCase() === serial.toLowerCase() && idx !== index);
+            if (duplicate) {
+                showDuplicateModal(`SIM or Device Serial Number "${serial}" inventory match duplicate ho gaya hai! Yeh asset pehle se "${duplicate.name}" (${duplicate.team}) ko assigned hai.`);
                 return;
             }
 
             if(index === -1) {
-                // Anyone can add new entries instantly
+                // Open add registration
                 employees.push({ name, team, tool, serial });
             } else {
-                // If editing existing item, confirm with absolute update parameters
                 employees[index] = { name, team, tool, serial };
                 document.getElementById("editIndex").value = "-1";
-                document.getElementById("submitBtn").innerText = "Add Member to Roster";
+                document.getElementById("submitBtn").innerText = "Save Record to System";
                 document.getElementById("submitBtn").className = "sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
             }
 
@@ -262,56 +264,44 @@
             renderDashboard();
         }
 
-        // Password Security Layer for Sensitive Changes
+        // Action Lock Gate for Secure Modifications
         function secureAction(type, index) {
-            const passInput = prompt("Enter Password to perform this data modification action:");
-            if (passInput === null) return; // Action Cancelled
+            const pass = prompt("Modifications complete karne ke liye administrative Security Password enter karein:");
+            if (pass === null) return;
             
-            if (passInput === SECURE_PASSWORD) {
+            if (pass === SECURE_PASSWORD) {
                 if (type === 'edit') {
-                    executeEdit(index);
+                    const emp = employees[index];
+                    document.getElementById("editIndex").value = index;
+                    document.getElementById("empName").value = emp.name;
+                    document.getElementById("empTeam").value = emp.team;
+                    document.getElementById("empTool").value = emp.tool;
+                    document.getElementById("empSerial").value = emp.serial;
+
+                    const btn = document.getElementById("submitBtn");
+                    btn.innerText = "Authorize & Save Changes";
+                    btn.className = "sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
+                    document.getElementById("employeeForm").scrollIntoView({ behavior: 'smooth' });
                 } else if (type === 'remove') {
-                    executeRemove(index);
+                    employees.splice(index, 1);
+                    renderDashboard();
                 }
             } else {
-                alert("Incorrect Security Authorization Password! Action Denied.");
+                alert("Galat Password! Access and Modification Denied.");
             }
         }
 
-        function executeEdit(index) {
-            const emp = employees[index];
-            document.getElementById("editIndex").value = index;
-            document.getElementById("empName").value = emp.name;
-            document.getElementById("empTeam").value = emp.team;
-            document.getElementById("empTool").value = emp.tool;
-            document.getElementById("empSerial").value = emp.serial;
-
-            const submitBtn = document.getElementById("submitBtn");
-            submitBtn.innerText = "Authorize & Save Changes";
-            submitBtn.className = "sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
-            document.getElementById("employeeForm").scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function executeRemove(index) {
-            employees.splice(index, 1);
-            if(parseInt(document.getElementById("editIndex").value) === index) {
-                document.getElementById("employeeForm").reset();
-                document.getElementById("editIndex").value = "-1";
-                document.getElementById("submitBtn").innerText = "Add Member to Roster";
-            }
-            renderDashboard();
-        }
-
+        // Each employee click verification handler instead of lists
         function validateEmployee(index) {
             const emp = employees[index];
             const modal = document.getElementById("validationModal");
             const content = document.getElementById("modalContent");
             content.innerHTML = `
                 <div class="space-y-2">
-                    <p><strong>Resource Name:</strong> <span class="text-slate-800">${emp.name}</span></p>
-                    <p><strong>Department Unit:</strong> <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-semibold">${emp.team}</span></p>
-                    <p><strong>Asset Specification:</strong> <span class="text-slate-800">${emp.tool}</span></p>
-                    <p><strong>Tracked Serial / SIM:</strong> <span class="text-slate-800 font-mono">${emp.serial}</span></p>
+                    <p><strong>Resource Name:</strong> <span class="text-slate-900 font-medium">${emp.name}</span></p>
+                    <p><strong>Assigned Team Unit:</strong> <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded text-xs font-bold">${emp.team}</span></p>
+                    <p><strong>Configured Ecosystem:</strong> <span class="text-gray-700">${emp.tool}</span></p>
+                    <p><strong>Inventory Serial ID:</strong> <span class="text-slate-900 font-mono text-xs bg-gray-100 px-2 py-1 rounded">${emp.serial}</span></p>
                 </div>
             `;
             modal.classList.remove("hidden");
@@ -339,41 +329,33 @@
             });
         }
 
-        // Excel Export Logic via SheetJS
         function exportToExcel() {
-            const formattedData = employees.map(e => ({
-                "Employee Name": e.name,
-                "Team Category": e.team,
-                "Assigned Tool/Asset": e.tool,
-                "SIM / Serial Number": e.serial
+            const formatted = employees.map(e => ({
+                "Employee Name": e.name, "Team Category": e.team, "Assigned Asset": e.tool, "SIM or Serial ID": e.serial
             }));
-            const worksheet = XLSX.utils.json_to_sheet(formattedData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "EMS Roster Data");
-            XLSX.writeFile(workbook, "Employee_Asset_Directory.xlsx");
+            const ws = XLSX.utils.json_to_sheet(formatted);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "North Region");
+            XLSX.writeFile(wb, "North_Region_Inventory.xlsx");
         }
 
-        // PDF Export Logic via jsPDF & AutoTable
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.text("Employee Management Master Roster Report", 14, 15);
-            
-            const tableRows = employees.map(e => [e.name, e.team, e.tool, e.serial]);
+            doc.text("North Region Asset Inventory Master Report", 14, 15);
             doc.autoTable({
-                head: [['Employee Name', 'Team Group', 'Assigned Asset', 'SIM/Serial Identifer']],
-                body: tableRows,
+                head: [['Employee Name', 'Team Group', 'Assigned Asset', 'SIM/Serial Identifier']],
+                body: employees.map(e => [e.name, e.team, e.tool, e.serial]),
                 startY: 22
             });
-            doc.save("Employee_Asset_Directory.pdf");
+            doc.save("North_Region_Inventory.pdf");
         }
 
-        // Pie Chart Generation System
         function updatePieChart() {
-            const teamCounts = {};
-            employees.forEach(emp => { teamCounts[emp.team] = (teamCounts[emp.team] || 0) + 1; });
-            const labels = Object.keys(teamCounts);
-            const data = Object.values(teamCounts);
+            const counts = {};
+            employees.forEach(emp => { counts[emp.team] = (counts[emp.team] || 0) + 1; });
+            const labels = Object.keys(counts);
+            const data = Object.values(counts);
             const ctx = document.getElementById('teamChart').getContext('2d');
             if (chartInstance) { chartInstance.destroy(); }
             if(labels.length === 0) return;
@@ -383,7 +365,7 @@
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899'],
                         borderWidth: 2, borderColor: '#ffffff'
                     }]
                 },
