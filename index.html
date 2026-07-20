@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>North Tools Inventory Dashboard</title>
-    <!-- Tailwind CSS for modern layout -->
+    <!-- Tailwind CSS for Modern Responsive UI -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js for beautiful interactive Pie Charts -->
+    <!-- Chart.js for Interactive Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome for professional dashboard icons -->
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen dynamic-dashboard">
 
-    <!-- Top Navbar -->
+    <!-- Top Navigation Bar -->
     <nav class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex flex-wrap justify-between items-center shadow-lg">
         <div class="flex items-center space-x-3">
             <div class="bg-blue-600 p-2 rounded-lg text-white shadow-md shadow-blue-500/20">
@@ -25,424 +25,609 @@
             </div>
         </div>
         
-        <!-- Search and Global Actions -->
-        <div class="flex items-center space-x-4 mt-4 sm:mt-0 w-full sm:w-auto">
-            <div class="relative flex-1 sm:flex-initial">
+        <!-- Controls and Admin Login -->
+        <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+            <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400 text-sm"></i>
-                <input type="text" id="globalSearch" placeholder="Search employee, item, serial..." class="w-full sm:w-64 pl-9 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors">
+                <input type="text" id="globalSearch" oninput="handleSearch()" placeholder="Search employee, item, serial..." class="w-full sm:w-64 pl-9 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500 transition-colors">
             </div>
-            
-            <button id="adminLoginBtn" onclick="toggleAdminMode()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-sm font-medium transition-all flex items-center space-x-2">
-                <i id="lockIcon" class="fa-solid fa-lock text-amber-500"></i>
-                <span id="adminBtnText">Admin Login</span>
+            <button id="adminBtn" onclick="toggleAdminMode()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold rounded-lg transition-colors flex items-center space-x-2 shadow-sm">
+                <i class="fa-solid fa-lock"></i>
+                <span>Admin Mode</span>
             </button>
         </div>
     </nav>
 
-    <!-- Main Dashboard Body -->
-    <main class="p-6 max-w-7xl mx-auto space-y-6">
+    <!-- Main Content Layout -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
-        <!-- Stat Metrics Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between shadow-sm">
+        <!-- Statistics Section -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex items-center space-x-4 shadow-sm">
+                <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg"><i class="fa-solid fa-laptop text-2xl"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Assets</p>
-                    <h3 id="statTotal" class="text-2xl font-bold mt-1 text-white">0</h3>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Telecom Hardware</p>
+                    <h3 id="statTelecom" class="text-2xl font-bold mt-1 text-white">0</h3>
                 </div>
-                <div class="text-blue-500 bg-blue-500/10 p-3 rounded-lg"><i class="fa-solid fa-cubes text-xl"></i></div>
             </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex items-center space-x-4 shadow-sm">
+                <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg"><i class="fa-solid fa-helmet-safety text-2xl"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Working Items</p>
-                    <h3 id="statWorking" class="text-2xl font-bold mt-1 text-emerald-400">0</h3>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Rigger Safety</p>
+                    <h3 id="statRigger" class="text-2xl font-bold mt-1 text-white">0</h3>
                 </div>
-                <div class="text-emerald-500 bg-emerald-500/10 p-3 rounded-lg"><i class="fa-solid fa-circle-check text-xl"></i></div>
             </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex items-center space-x-4 shadow-sm">
+                <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg"><i class="fa-solid fa-sim-card text-2xl"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Need Attention</p>
-                    <h3 id="statAttention" class="text-2xl font-bold mt-1 text-rose-400">0</h3>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Active SIM Cards</p>
+                    <h3 id="statSims" class="text-2xl font-bold mt-1 text-white">0</h3>
                 </div>
-                <div class="text-rose-500 bg-rose-500/10 p-3 rounded-lg"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
             </div>
-            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 flex items-center space-x-4 shadow-sm">
+                <div class="p-3 bg-rose-500/10 text-rose-400 rounded-lg"><i class="fa-solid fa-triangle-exclamation text-2xl"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Employees</p>
-                    <h3 id="statEmployees" class="text-2xl font-bold mt-1 text-purple-400">0</h3>
-                </div>
-                <div class="text-purple-500 bg-purple-500/10 p-3 rounded-lg"><i class="fa-solid fa-users text-xl"></i></div>
-            </div>
-        </div>
-
-        <!-- Charts Grid Segment -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-slate-800 border border-slate-700 p-5 rounded-xl flex flex-col items-center">
-                <h4 class="text-sm font-semibold text-slate-300 self-start mb-4"><i class="fa-solid fa-chart-pie mr-2 text-blue-500"></i>Status Distribution</h4>
-                <div class="w-full max-w-[260px] h-[260px]">
-                    <canvas id="statusChart"></canvas>
+                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Damaged / Old</p>
+                    <h3 id="statIssues" class="text-2xl font-bold mt-1 text-white">0</h3>
                 </div>
             </div>
-            <div class="bg-slate-800 border border-slate-700 p-5 rounded-xl flex flex-col items-center">
-                <h4 class="text-sm font-semibold text-slate-300 self-start mb-4"><i class="fa-solid fa-chart-pie mr-2 text-purple-500"></i>Category Distribution</h4>
-                <div class="w-full max-w-[260px] h-[260px]">
-                    <canvas id="categoryChart"></canvas>
+        </section>
+
+        <!-- Visual Analytics Dashboard -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center">
+                <h4 class="text-sm font-semibold text-slate-300 mb-4 self-start flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-blue-500"></i> Asset Categories Distribution
+                </h4>
+                <div class="w-64 h-64"><canvas id="categoryChart"></canvas></div>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center">
+                <h4 class="text-sm font-semibold text-slate-300 mb-4 self-start flex items-center gap-2">
+                    <i class="fa-solid fa-heart-pulse text-emerald-500"></i> Inventory Condition Status
+                </h4>
+                <div class="w-64 h-64"><canvas id="statusChart"></canvas></div>
+            </div>
+        </section>
+
+        <!-- Employee Validation Cards Section -->
+        <section class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-purple-500"></i> Field Personnel Verification
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Click any employee card below to perform structured validation</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Admin Control Panel (Hidden unless admin is authenticated) -->
-        <div id="adminPanel" class="hidden bg-slate-800/60 border border-blue-500/30 p-6 rounded-xl space-y-4 backdrop-blur-sm shadow-xl">
-            <div class="flex items-center space-x-2 text-blue-400 font-semibold text-md">
-                <i class="fa-solid fa-sliders"></i>
-                <h3>Admin Management Actions</h3>
+            <div id="employeeCardGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Dynamic Employee Validation Cards will render here -->
             </div>
-            <form id="assetForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3" onsubmit="handleFormSubmit(event)">
-                <input type="hidden" id="editItemId" value="">
-                
-                <input type="text" id="formEmployee" placeholder="Employee Name" required class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
-                
-                <select id="formCategory" required class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
-                    <option value="" disabled selected>Select Category</option>
-                    <option value="Telecom Hardware">Telecom Hardware</option>
-                    <option value="Rigger Safety">Rigger Safety</option>
-                </select>
-                
-                <input type="text" id="formItem" placeholder="Item Name (e.g., HP Laptop)" required class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
-                
-                <input type="text" id="formSerial" placeholder="Serial Number / ID" required class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
-                
-                <select id="formStatus" required class="bg-slate-900 border border-slate-700 p-2.5 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
-                    <option value="" disabled selected>Select Status</option>
-                    <option value="Working">Working</option>
-                    <option value="Not Issued">Not Issued</option>
-                    <option value="OLD">OLD</option>
-                    <option value="Ok">Ok</option>
-                    <option value="Need New">Need New</option>
-                    <option value="Damage">Damage</option>
-                </select>
+        </section>
 
-                <div class="lg:col-span-5 flex justify-end space-x-2 pt-2">
-                    <button type="button" onclick="resetForm()" class="px-4 py-2 bg-slate-700 text-slate-300 text-sm font-medium rounded-lg hover:bg-slate-600 transition-colors">Clear</button>
-                    <button type="submit" id="submitFormBtn" class="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-500 shadow-md shadow-blue-500/10 transition-colors">Add Asset</button>
+        <!-- Live Inventory Sheet -->
+        <section class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-md">
+            <div class="px-6 py-5 border-b border-slate-700 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Live Asset Ledger</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Comprehensive deployment view of all organization resources</p>
                 </div>
-            </form>
-        </div>
-
-        <!-- Main Datatable Inventory Section -->
-        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
-            <div class="p-5 border-b border-slate-700 flex flex-wrap justify-between items-center gap-4 bg-slate-800/50">
-                <h3 class="font-bold text-lg text-white flex items-center"><i class="fa-solid fa-list-check text-blue-500 mr-2"></i>Live Inventory Database</h3>
-                <div class="flex items-center space-x-2">
-                    <select id="filterCategory" onchange="render()" class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-blue-500">
-                        <option value="All">All Categories</option>
-                        <option value="Telecom Hardware">Telecom Hardware</option>
-                        <option value="Rigger Safety">Rigger Safety</option>
-                    </select>
-                    <select id="filterStatus" onchange="render()" class="bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-blue-500">
-                        <option value="All">All Statuses</option>
-                        <option value="Working">Working</option>
-                        <option value="Not Issued">Not Issued</option>
-                        <option value="OLD">OLD</option>
-                        <option value="Ok">Ok</option>
-                        <option value="Need New">Need New</option>
-                        <option value="Damage">Damage</option>
-                    </select>
+                <div class="flex items-center space-x-3">
+                    <button id="addItemBtn" onclick="openAddModal()" class="hidden px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg shadow transition-colors flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add New Resource</span>
+                    </button>
+                    <button onclick="exportToCSV()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold rounded-lg transition-colors flex items-center space-x-2">
+                        <i class="fa-solid fa-file-csv"></i>
+                        <span>Export CSV</span>
+                    </button>
                 </div>
             </div>
-
+            
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-900/50 border-b border-slate-700 text-slate-400 uppercase text-xs font-semibold tracking-wider">
-                            <th class="py-3.5 px-5">ID</th>
-                            <th class="py-3.5 px-5">Employee</th>
-                            <th class="py-3.5 px-5">Category</th>
-                            <th class="py-3.5 px-5">Item Descriptor</th>
-                            <th class="py-3.5 px-5">Serial/Tag ID</th>
-                            <th class="py-3.5 px-5">Status Code</th>
-                            <th class="py-3.5 px-5 text-right admin-action-cell hidden">Management Actions</th>
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-700/50 text-xs font-semibold text-slate-200 uppercase tracking-wider border-b border-slate-700">
+                        <tr>
+                            <th class="px-6 py-3.5">Employee Name</th>
+                            <th class="px-6 py-3.5">Asset Category</th>
+                            <th class="px-6 py-3.5">Item Description</th>
+                            <th class="px-6 py-3.5">Serial / SIM No.</th>
+                            <th class="px-6 py-3.5">Status</th>
+                            <th id="actionsHeader" class="px-6 py-3.5 hidden">Management</th>
                         </tr>
                     </thead>
-                    <tbody id="inventoryTableBody" class="divide-y divide-slate-700/60 text-sm text-slate-300">
-                        <!-- Filled at Runtime dynamically via Javascript array loops -->
+                    <tbody id="inventoryTableBody" class="divide-y divide-slate-700/60">
+                        <!-- Dynamic content -->
                     </tbody>
                 </table>
             </div>
-        </div>
+        </section>
     </main>
 
-    <!-- Custom Floating Alert Box for Serial Duplicates -->
-    <div id="duplicateAlert" class="fixed top-5 left-1/2 transform -translate-x-1/2 hidden z-50 bg-rose-500 border border-rose-400 text-white px-6 py-4 rounded-xl shadow-2xl flex items-start space-x-3 max-w-md animate-bounce">
-        <i class="fa-solid fa-triangle-exclamation text-xl mt-0.5"></i>
-        <div>
-            <h5 class="font-bold text-md">CRITICAL DUPLICATE DETECTED!</h5>
-            <p id="alertMessage" class="text-xs text-rose-100 mt-1"></p>
-            <button onclick="dismissAlert()" class="mt-2 text-xs font-bold underline text-white hover:text-slate-100 block">Acknowledge Alert</button>
+    <!-- DUPLICATE ALERT MODAL (POP-UP) -->
+    <div id="duplicateModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-rose-500 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 transform transition-all">
+            <div class="flex items-center space-x-3 text-rose-500">
+                <i class="fa-solid fa-triangle-exclamation text-3xl animate-bounce"></i>
+                <h3 class="text-xl font-bold">Duplicate Asset Conflict!</h3>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed">
+                The Serial / SIM Number you entered already exists inside the active inventory database. To prevent track logs corruption, duplicate registrations are restricted.
+            </p>
+            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-700 text-xs text-slate-400 space-y-1">
+                <p><strong>Conflicting Serial:</strong> <span id="dupSerialText" class="text-rose-400 font-mono"></span></p>
+                <p><strong>Assigned To:</strong> <span id="dupEmployeeText" class="text-slate-200"></span></p>
+                <p><strong>Item Name:</strong> <span id="dupItemText" class="text-slate-200"></span></p>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeDuplicateModal()" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold rounded-lg transition-colors shadow">
+                    Review Constraints
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Core Business Logic Script Engine -->
+    <!-- EMPLOYEE VALIDATION PROFILE MODAL -->
+    <div id="validationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 max-w-2xl w-full rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="bg-slate-700/50 px-6 py-4 flex justify-between items-center border-b border-slate-600">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold text-lg" id="valUserBadge"></div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white" id="valEmployeeName">Employee Name</h3>
+                        <p class="text-xs text-slate-400">Individual Resource Allocation Checklist</p>
+                    </div>
+                </div>
+                <button onclick="closeValidationModal()" class="text-slate-400 hover:text-white transition-colors text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4 flex-1">
+                <div class="grid grid-cols-2 gap-4 bg-slate-900/40 p-4 rounded-xl border border-slate-700/60">
+                    <div>
+                        <p class="text-[10px] uppercase text-slate-400 font-semibold tracking-wider">Total Handover Count</p>
+                        <p class="text-xl font-bold text-white mt-0.5" id="valTotalItems">0 Assets</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase text-slate-400 font-semibold tracking-wider">Verification Status</p>
+                        <p class="text-sm font-bold text-emerald-400 mt-1 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Compliant Log</p>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Assigned Equipment Checklist</h4>
+                    <div id="valItemsList" class="space-y-2">
+                        <!-- Dynamic item checks -->
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-900/40 px-6 py-4 border-t border-slate-700 flex justify-end space-x-3">
+                <button onclick="closeValidationModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-semibold rounded-lg transition-colors">Close Verification</button>
+                <button onclick="printValidationProfile()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-print"></i> Print Receipt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESOURCE MANAGEMENT FORM MODAL (ADD / EDIT) -->
+    <div id="resourceModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                <h3 id="modalTitle" class="text-lg font-bold text-white">Register Asset Log</h3>
+                <button onclick="closeResourceModal()" class="text-slate-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="assetForm" onsubmit="saveAssetForm(event)" class="space-y-4">
+                <input type="hidden" id="formAssetId">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Responsible Field Employee</label>
+                    <input type="text" id="formEmployee" required class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Asset Category</label>
+                    <select id="formCategory" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="Telecom Hardware">Telecom Hardware</option>
+                        <option value="Rigger Safety">Rigger Safety</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Item Specifications / Model</label>
+                    <input type="text" id="formItem" required class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Unique Serial / SIM Card Numbers</label>
+                    <input type="text" id="formSerial" required class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Operational Tracking Status</label>
+                    <select id="formStatus" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500">
+                        <option value="Working">Working</option>
+                        <option value="Not Issued">Not Issued</option>
+                        <option value="OLD">OLD</option>
+                        <option value="Need New">Need New</option>
+                        <option value="Ok">Ok</option>
+                        <option value="Damaged">Damaged</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2 border-t border-slate-700">
+                    <button type="button" onclick="closeResourceModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-semibold rounded-lg transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-lg transition-colors shadow">Save Resource</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CORE ENGINE JAVASCRIPT SYSTEM -->
     <script>
-        // Default Seed Data Matrix (124 Raw records bundled out-of-the-box)
-        const initialSeeds = [{"id":0,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T3F","status":"Working"},{"id":1,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working"},{"id":2,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Laptop Charger","serial":"4CH24205WL","status":"Working"},{"id":3,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},{"id":4,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446843","status":"Working"},{"id":5,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448980","status":"Working"},{"id":6,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T85","status":"Working"},{"id":7,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"65W Charger","serial":"1","status":"Working"},{"id":8,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working"},{"id":9,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},{"id":10,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446758","status":"Working"},{"id":11,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448050","status":"Working"},{"id":12,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG0462CX0","status":"Working"},{"id":13,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Charger","serial":"1","status":"Working"},{"id":14,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},{"id":15,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446789","status":"Working"},{"id":16,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592448903","status":"Working"},{"id":17,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"580174700","status":"Working"},{"id":18,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446967","status":"Working"},{"id":19,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Kingston USB Hub","serial":"1","status":"Working"},{"id":20,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378535","status":"Working"},{"id":21,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044379731","status":"Working"},{"id":22,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539847","status":"Working"},{"id":23,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104805962","status":"Working"},{"id":24,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104812380","status":"Working"},{"id":25,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei CPE","serial":"867206040945128","status":"Working"},{"id":26,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Belt","serial":"1","status":"OLD"},{"id":27,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Shoe","serial":"1","status":"OLD"},{"id":28,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"OLD"},{"id":29,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Ok"},{"id":30,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 17","serial": "1", "status": "OLD"}, {"id": 31, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "OLD"}, {"id": 32, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New"}, {"id": 33, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "OLD"}, {"id": 34, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "HP ProBook", "serial": "5CG1152Y1V", "status": "Working"}, {"id": 35, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "HP Charger", "serial": "1", "status": "Working"}, {"id": 36, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued"}, {"id": 37, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044378261", "status": "Working"}, {"id": 38, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044377792", "status": "Working"}, {"id": 39, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122746814", "status": "Working"}, {"id": 40, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122784532", "status": "Working"}, {"id": 41, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Huawei Mate 30 Pro", "serial": "862781041935423", "status": "Damage"}, {"id": 42, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448269", "status": "Working"}, {"id": 43, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446971", "status": "Working"}, {"id": 44, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446902", "status": "Working"}, {"id": 45, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446981", "status": "Working"}, {"id": 46, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Kensington USB Hub", "serial": "1", "status": "Working"}, {"id": 47, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Anker USB Hub", "serial": "1", "status": "Working"}, {"id": 48, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD"}, {"id": 49, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Safety Shoe", "serial": "1", "status": "OLD"}, {"id": 50, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Safety Helmet", "serial": "1", "status": "OLD"}, {"id": 51, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Spanner 17", "serial": "1", "status": "Ok"}, {"id": 52, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "Ok"}, {"id": 53, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New"}, {"id": 54, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "Ok"}, {"id": 55, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "HP Elite Book", "serial": "5CG0462CY2", "status": "Working"}, {"id": 56, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "HP Charger", "serial": "1", "status": "Working"}, {"id": 57, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued"}, {"id": 58, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "59244818", "status": "Working"}, {"id": 59, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592449627", "status": "Working"}, {"id": 60, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448924", "status": "Working"}, {"id": 61, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446963", "status": "Working"}, {"id": 62, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Kensington USB Hub", "serial": "1", "status": "Working"}, {"id": 63, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Anker USB Hub", "serial": "1", "status": "Working"}, {"id": 64, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044497160", "status": "Working"}, {"id": 65, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "86372504429418", "status": "Working"}, {"id": 66, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122742953", "status": "Working"}, {"id": 67, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Samsung S23", "serial": "355928813629956", "status": "Working"}, {"id": 68, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD"}, {"id": 69, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Shoe", "serial": "1", "status": "Ok"}, {"id": 70, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Vest", "serial": "1", "status": "Ok"}, {"id": 71, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Helmet", "serial": "1", "status": "Ok"}, {"id": 72, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Working Gloves", "serial": "1", "status": "Ok"}, {"id": 73, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Spanner 17", "serial": "1", "status": "Ok"}, {"id": 74, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "Ok"}, {"id": 75, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New"}, {"id": 76, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "Ok"}, {"id": 77, "employee": "Fuaad Alnakhli", "category": "Telecom Hardware", "item": "HP Elite Book 840 G8", "serial": "5CG2138VYF", "status": "Working"}, {"id": 78, "employee": "Fuaad Alnakhli", "category": "Telecom Hardware", "item": "65W Charger", "serial": "1", "status": "Working"}, {"id": 79, "employee": "Fuaad Alnakhli", "category": "Telecom Hardware", "item": "Ethernet Type C", "serial": "ROHS", "status": "Working"}, {"id": 80, "employee": "Fuaad Alnakhli", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued"}, {"id": 81, "employee": "Fuaad Alnakhli", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446849", "status": "Working"}, {"id": 82, "employee": "Fuaad Alnakhli", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448969", "status": "Working"}, {"id": 83, "employee": "Majed AlHarbi", "category": "Telecom Hardware", "item": "HP Elite Book 840 G8", "serial": "5CG2138WDS", "status": "Working"}, {"id": 84, "employee": "Majed AlHarbi", "category": "Telecom Hardware", "item": "65W Charger", "serial": "1", "status": "Working"}, {"id": 85, "employee": "Majed AlHarbi", "category": "Telecom Hardware", "item": "Ethernet Type C", "serial": "ROHS", "status": "Working"}, {"id": 86, "employee": "Majed AlHarbi", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued"}, {"id": 87, "employee": "Majed AlHarbi", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448592", "status": "Working"}, {"id": 88, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "HP Laptop", "serial": "5CG2471J9M", "status": "Working"}, {"id": 89, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Tools Bag", "serial": "1", "status": "Not Issued"}, {"id": 90, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Samsung NOTE 5", "serial": "352560075246733", "status": "Working"}, {"id": 91, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Samsung NOTE 5", "serial": "352560075362621", "status": "Working"}, {"id": 92, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Samsung NOTE 5", "serial": "352560075363660", "status": "Working"}, {"id": 93, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Samsung NOTE 5", "serial": "352560075363009", "status": "Working"}, {"id": 94, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446936", "status": "Working"}, {"id": 95, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446923", "status": "Working"}, {"id": 96, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446921", "status": "Working"}, {"id": 97, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044531463", "status": "Working"}, {"id": 98, "employee": "Naveed Ahmad", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044383790", "status": "Working"}, {"id": 99, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD"}, {"id": 100, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Safety Shoe", "serial": "1", "status": "OLD"}, {"id": 101, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Safety Helmet", "serial": "1", "status": "OLD"}, {"id": 102, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Spanner 17", "serial": "1", "status": "OLD"}, {"id": 103, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "OLD"}, {"id": 104, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New"}, {"id": 105, "employee": "Naveed Ahmad", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "Ok"}, {"id": 106, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "HP ProBook", "serial": "5CG1152XWZ", "status": "Working"}, {"id": 107, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "HP Charger", "serial": "1", "status": "Working"}, {"id": 108, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued"}, {"id": 109, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446755", "status": "Working"}, {"id": 110, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448107", "status": "Working"}, {"id": 111, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044377982", "status": "Working"}, {"id": 112, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044497350", "status": "Working"}, {"id": 113, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122784534", "status": "Working"}, {"id": 114, "employee": "Adnan Ali", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122756816", "status": "Working"}, {"id": 115, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD"}, {"id": 116, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Safety Shoe", "serial": "1", "status": "OLD"}, {"id": 117, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Safety Helmet", "serial": "1", "status": "OLD"}, {"id": 118, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Spanner 17", "serial": "1", "status": "Ok"}, {"id": 119, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "Ok"}, {"id": 120, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New"}, {"id": 121, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "Ok"}, {"id": 122, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Working Gloves", "serial": "1", "status": "Ok"}, {"id": 123, "employee": "Adnan Ali", "category": "Rigger Safety", "item": "Safety Vest", "serial": "1", "status": "Ok"}];
+        const initialSeeds = [
+            { "id": 0, "employee": "Majid Mubarak Mohammed", "category": "Telecom Hardware", "item": "HP Z Book", "serial": "5CG2421T3F", "status": "Working" },
+            { "id": 1, "employee": "Majid Mubarak Mohammed", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446758", "status": "Working" },
+            { "id": 2, "employee": "Majid Mubarak Mohammed", "category": "Telecom Hardware", "item": "HP Laptop Charger", "serial": "4CH24205WL", "status": "Working" },
+            { "id": 3, "employee": "Majid Mubarak Mohammed", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued" },
+            { "id": 4, "employee": "Majid Mubarak Mohammed", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446843", "status": "Working" },
+            { "id": 5, "employee": "Majid Mubarak Mohammed", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448980", "status": "Working" },
+            { "id": 6, "employee": "Amer Mohammed", "category": "Telecom Hardware", "item": "HP Z Book", "serial": "5CG2421T85", "status": "Working" },
+            { "id": 7, "employee": "Amer Mohammed", "category": "Telecom Hardware", "item": "65W Charger", "serial": "1", "status": "Working" },
+            { "id": 8, "employee": "Amer Mohammed", "category": "Telecom Hardware", "item": "Ethernet Type C", "serial": "ROHS", "status": "Working" },
+            { "id": 9, "employee": "Amer Mohammed", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued" },
+            { "id": 10, "employee": "Amer Mohammed", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446758", "status": "Working" },
+            { "id": 11, "employee": "Amer Mohammed", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448050", "status": "Working" },
+            { "id": 12, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "HP ProBook", "serial": "5CG0462CX0", "status": "Working" },
+            { "id": 13, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "HP Charger", "serial": "1", "status": "Working" },
+            { "id": 14, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued" },
+            { "id": 15, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446789", "status": "Working" },
+            { "id": 16, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446967", "status": "Working" },
+            { "id": 17, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044378535", "status": "Working" },
+            { "id": 18, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044379731", "status": "Working" },
+            { "id": 19, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044359847", "status": "Working" },
+            { "id": 20, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Samsung S9", "serial": "354663104805962", "status": "Working" },
+            { "id": 21, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Samsung S9", "serial": "354663104812380", "status": "Working" },
+            { "id": 22, "employee": "Yasir Nadeem", "category": "Telecom Hardware", "item": "Huawei CPE", "serial": "867206040945128", "status": "Working" },
+            { "id": 23, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD" },
+            { "id": 24, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Safety Shoe", "serial": "1", "status": "OLD" },
+            { "id": 25, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Safety Vest", "serial": "1", "status": "OLD" },
+            { "id": 26, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Spanner 17", "serial": "1", "status": "Ok" },
+            { "id": 27, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "Ok" },
+            { "id": 28, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New" },
+            { "id": 29, "employee": "Yasir Nadeem", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "OLD" },
+            { "id": 30, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "HP ProBook", "serial": "5CG1152Y1V", "status": "Working" },
+            { "id": 31, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "HP Charger", "serial": "1", "status": "Working" },
+            { "id": 32, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued" },
+            { "id": 33, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044378261", "status": "Working" },
+            { "id": 34, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044377792", "status": "Working" },
+            { "id": 35, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122746814", "status": "Working" },
+            { "id": 36, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122784532", "status": "Working" },
+            { "id": 37, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Huawei Mate 30 Pro", "serial": "862781041935423", "status": "Damaged" },
+            { "id": 38, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448269", "status": "Working" },
+            { "id": 39, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446971", "status": "Working" },
+            { "id": 40, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446902", "status": "Working" },
+            { "id": 41, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592446981", "status": "Working" },
+            { "id": 42, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Kensington USB Hub", "serial": "1", "status": "Working" },
+            { "id": 43, "employee": "Saeed Iqbal", "category": "Telecom Hardware", "item": "Anker USB Hub", "serial": "1", "status": "Working" },
+            { "id": 44, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD" },
+            { "id": 45, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Safety Shoe", "serial": "1", "status": "OLD" },
+            { "id": 46, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Safety Vest", "serial": "1", "status": "OLD" },
+            { "id": 47, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Spanner 17", "serial": "1", "status": "Ok" },
+            { "id": 48, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Spanner 19", "serial": "1", "status": "Ok" },
+            { "id": 49, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Spanner 13", "serial": "1", "status": "Need New" },
+            { "id": 50, "employee": "Saeed Iqbal", "category": "Rigger Safety", "item": "Car Inverter", "serial": "1", "status": "Ok" },
+            { "id": 51, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "HP Elite Book", "serial": "5CG0462CY2", "status": "Working" },
+            { "id": 52, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "HP Charger", "serial": "1", "status": "Working" },
+            { "id": 53, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "HP Bag", "serial": "1", "status": "Not Issued" },
+            { "id": 54, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448818", "status": "Working" },
+            { "id": 55, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592449627", "status": "Working" },
+            { "id": 56, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Zain SIM", "serial": "592448924", "status": "Working" },
+            { "id": 57, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Kensington USB Hub", "serial": "1", "status": "Working" },
+            { "id": 58, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Anker USB Hub", "serial": "1", "status": "Working" },
+            { "id": 59, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044497160", "status": "Working" },
+            { "id": 60, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Huawei P40", "serial": "863725044529418", "status": "Working" },
+            { "id": 61, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "355928813629956", "status": "Working" },
+            { "id": 62, "employee": "Muhammad Sajawal", "category": "Telecom Hardware", "item": "Samsung S22", "serial": "354839122742953", "status": "Working" },
+            { "id": 63, "employee": "Muhammad Sajawal", "category": "Rigger Safety", "item": "Safety Belt", "serial": "1", "status": "OLD" }
+        ];
 
-        let inventory = [];
+        let inventory = JSON.parse(localStorage.getItem('north_inventory')) || initialSeeds;
         let isAdmin = false;
-        let statusPieChart = null;
-        let categoryPieChart = null;
+        let categoryChartInst = null;
+        let statusChartInst = null;
 
-        // Initialize state engine
-        function init() {
-            const data = localStorage.getItem('north_inventory');
-            if (data) {
-                inventory = JSON.parse(data);
-            } else {
-                inventory = [...initialSeeds];
-                saveToLocalStorage();
-            }
+        document.addEventListener("DOMContentLoaded", () => {
+            renderDashboard();
+        });
 
-            // Sync channel connection to make changes update "Real-time" across other tabs on refresh
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'north_inventory') {
-                    inventory = JSON.parse(e.newValue);
-                    render();
-                }
-            });
-
-            document.getElementById('globalSearch').addEventListener('input', render);
-            render();
-        }
-
-        function saveToLocalStorage() {
+        function saveState() {
             localStorage.setItem('north_inventory', JSON.stringify(inventory));
         }
 
-        // Toggle Admin State Engine
         function toggleAdminMode() {
-            if (isAdmin) {
-                isAdmin = false;
-                document.getElementById('adminPanel').classList.add('hidden');
-                document.getElementById('lockIcon').className = "fa-solid fa-lock text-amber-500";
-                document.getElementById('adminBtnText').innerText = "Admin Login";
-                alert("Logged out from Admin successfully.");
-                render();
-            } else {
-                const pass = prompt("Enter Master Admin Password:");
+            if (!isAdmin) {
+                const pass = prompt("Enter Administration Password:");
                 if (pass === "Admin@North2026") {
                     isAdmin = true;
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    document.getElementById('lockIcon').className = "fa-solid fa-lock-open text-emerald-500";
-                    document.getElementById('adminBtnText').innerText = "Exit Admin";
-                    render();
-                } else if(pass !== null) {
-                    alert("Access Denied! Incorrect Password.");
+                    document.getElementById('adminBtn').classList.replace('bg-slate-700', 'bg-red-600');
+                    document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-unlock"></i> <span>Exit Admin</span>';
+                    document.getElementById('addItemBtn').classList.remove('hidden');
+                    document.getElementById('actionsHeader').classList.remove('hidden');
+                } else {
+                    alert("Unauthorized access denied.");
                 }
+            } else {
+                isAdmin = false;
+                document.getElementById('adminBtn').classList.replace('bg-red-600', 'bg-slate-700');
+                document.getElementById('adminBtn').innerHTML = '<i class="fa-solid fa-lock"></i> <span>Admin Mode</span>';
+                document.getElementById('addItemBtn').addClass('hidden');
+                document.getElementById('actionsHeader').addClass('hidden');
             }
+            renderDashboard();
         }
 
-        // Check Duplication with a Filter Safeguard (ignores generic tags like serial "1" or "ROHS")
-        function checkDuplicateSerial(serial, currentId = null) {
-            if (!serial || serial.trim() === "1" || serial.toUpperCase() === "ROHS") return false;
+        function renderDashboard() {
+            const searchTerm = document.getElementById('globalSearch').value.toLowerCase().trim();
             
-            return inventory.some(item => 
-                item.serial.trim().toLowerCase() === serial.trim().toLowerCase() && 
-                item.id !== currentId
-            );
+            // Filter Dataset accurately based on search input
+            const filteredData = inventory.filter(item => {
+                return item.employee.toLowerCase().includes(searchTerm) ||
+                       item.item.toLowerCase().includes(searchTerm) ||
+                       item.serial.toLowerCase().includes(searchTerm) ||
+                       item.category.toLowerCase().includes(searchTerm) ||
+                       item.status.toLowerCase().includes(searchTerm);
+            });
+
+            // Update Metrics Counters
+            let telecomCount = 0, riggerCount = 0, simCount = 0, issueCount = 0;
+            let categoryMap = {}, statusMap = {};
+
+            filteredData.forEach(item => {
+                if(item.category === "Telecom Hardware") telecomCount++;
+                if(item.category === "Rigger Safety") riggerCount++;
+                if(item.item.toLowerCase().includes('sim')) simCount++;
+                if(["damaged", "old", "need new"].includes(item.status.toLowerCase())) issueCount++;
+
+                categoryMap[item.category] = (categoryMap[item.category] || 0) + 1;
+                statusMap[item.status] = (statusMap[item.status] || 0) + 1;
+            });
+
+            document.getElementById('statTelecom').innerText = telecomCount;
+            document.getElementById('statRigger').innerText = riggerCount;
+            document.getElementById('statSims').innerText = simCount;
+            document.getElementById('statIssues').innerText = issueCount;
+
+            // Render Employee Validation Profile Cards
+            renderEmployeeValidationGrid(filteredData);
+
+            // Render Main Ledger Table
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${isAdmin ? 6 : 5}" class="px-6 py-8 text-center text-slate-500">No matching tracking resources detected in search query.</td></tr>`;
+            } else {
+                filteredData.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-800/40 transition-colors";
+                    
+                    let statusBadge = 'bg-slate-700 text-slate-300';
+                    if(["working", "ok"].includes(item.status.toLowerCase())) statusBadge = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                    if(["old", "not issued"].includes(item.status.toLowerCase())) statusBadge = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                    if(["damaged", "need new"].includes(item.status.toLowerCase())) statusBadge = 'bg-rose-500/10 text-rose-400 border border-rose-500/20';
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-medium text-white">${item.employee}</td>
+                        <td class="px-6 py-4 text-slate-400 text-xs">${item.category}</td>
+                        <td class="px-6 py-4 text-slate-200">${item.item}</td>
+                        <td class="px-6 py-4 font-mono text-xs text-blue-400">${item.serial}</td>
+                        <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusBadge}">${item.status}</span></td>
+                        ${isAdmin ? `
+                        <td class="px-6 py-4 text-xs space-x-2">
+                            <button onclick="openEditModal(${item.id})" class="text-blue-400 hover:text-blue-300 transition-colors"><i class="fa-solid fa-pen"></i></button>
+                            <button onclick="deleteAssetItem(${item.id})" class="text-rose-400 hover:text-rose-300 transition-colors ml-2"><i class="fa-solid fa-trash"></i></button>
+                        </td>` : ''}
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // Update Dynamic High-Fidelity Charts
+            updateCharts(categoryMap, statusMap);
         }
 
-        function handleFormSubmit(event) {
-            event.preventDefault();
+        function renderEmployeeValidationGrid(filteredData) {
+            const grid = document.getElementById('employeeCardGrid');
+            grid.innerHTML = '';
+
+            // Extract unique employees inside active filtered context
+            const employees = [...new Set(inventory.map(item => item.employee))];
+
+            employees.forEach(emp => {
+                const empItems = inventory.filter(i => i.employee === emp);
+                const matchedSearchCount = filteredData.filter(i => i.employee === emp).length;
+                
+                // If search query active and employee has no matched items, omit card visually
+                if(document.getElementById('globalSearch').value.trim() !== "" && matchedSearchCount === 0) return;
+
+                const initials = emp.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                
+                const card = document.createElement('div');
+                card.className = "bg-slate-700/30 hover:bg-slate-700/60 border border-slate-700 hover:border-slate-600 rounded-xl p-4 flex flex-col justify-between transition-all cursor-pointer shadow-sm group";
+                card.setAttribute('onclick', `openValidationProfile("${emp}")`);
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between space-x-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-full bg-blue-600/10 text-blue-400 flex items-center justify-center font-bold text-sm group-hover:bg-blue-600 group-hover:text-white transition-all">${initials}</div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-white tracking-wide truncate max-w-[150px]">${emp}</h4>
+                                <p class="text-xs text-slate-400">${empItems.length} Registered Assets</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-700/60 flex justify-between items-center text-[11px]">
+                        <span class="text-slate-400">Click to Verify Logs</span>
+                        <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-blue-400 transition-colors"></i>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openValidationProfile(employeeName) {
+            const userItems = inventory.filter(i => i.employee === employeeName);
+            document.getElementById('valEmployeeName').innerText = employeeName;
+            document.getElementById('valUserBadge').innerText = employeeName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+            document.getElementById('valTotalItems').innerText = `${userItems.length} Assets Assigned`;
+
+            const listContainer = document.getElementById('valItemsList');
+            listContainer.innerHTML = '';
+
+            userItems.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex items-center justify-between bg-slate-900/30 p-3 rounded-lg border border-slate-700/50 text-sm";
+                itemDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" checked class="w-4 h-4 rounded text-purple-600 bg-slate-800 border-slate-700 focus:ring-purple-500">
+                        <div>
+                            <p class="font-medium text-slate-200">${item.item}</p>
+                            <p class="text-xs text-slate-500 font-mono">${item.serial}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">${item.status}</span>
+                `;
+                listContainer.appendChild(itemDiv);
+            });
+
+            document.getElementById('validationModal').classList.remove('hidden');
+        }
+
+        function closeValidationModal() {
+            document.getElementById('validationModal').classList.add('hidden');
+        }
+
+        function checkDuplicateSerial(serial, currentId) {
+            // Ignore blank or dummy values like "1" or "ROHS"
+            if(["1", "rohs", "n/a", "none"].includes(serial.toLowerCase().trim())) return null;
             
-            const idVal = document.getElementById('editItemId').value;
+            return inventory.find(item => item.serial.toLowerCase().trim() === serial.toLowerCase().trim() && item.id !== parseInt(currentId));
+        }
+
+        function saveAssetForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('formAssetId').value;
             const employee = document.getElementById('formEmployee').value.trim();
             const category = document.getElementById('formCategory').value;
             const item = document.getElementById('formItem').value.trim();
             const serial = document.getElementById('formSerial').value.trim();
             const status = document.getElementById('formStatus').value;
 
-            const targetId = idVal ? parseInt(idVal) : null;
-
-            // Trigger Pop-up Notification instantly if standard serial matches an existing asset
-            if (checkDuplicateSerial(serial, targetId)) {
-                const existing = inventory.find(i => i.serial.toLowerCase() === serial.toLowerCase() && i.id !== targetId);
-                document.getElementById('alertMessage').innerHTML = `Serial <strong>"${serial}"</strong> is already assigned to <strong>${existing.employee}</strong> (${existing.item}).`;
-                document.getElementById('duplicateAlert').classList.remove('hidden');
-                return; 
+            // Strict Live Duplicate Check Logic Verification
+            const duplicateConflict = checkDuplicateSerial(serial, id);
+            if (duplicateConflict) {
+                document.getElementById('dupSerialText').innerText = duplicateConflict.serial;
+                document.getElementById('dupEmployeeText').innerText = duplicateConflict.employee;
+                document.getElementById('dupItemText').innerText = duplicateConflict.item;
+                document.getElementById('duplicateModal').classList.remove('hidden');
+                return; // Cease execution to prevent data error corruption
             }
 
-            if (targetId !== null) {
-                // Edit operation
-                const index = inventory.findIndex(i => i.id === targetId);
-                if (index !== -1) {
-                    inventory[index] = { id: targetId, employee, category, item, serial, status };
-                }
+            if (id === "") {
+                // Generate secure index increment id
+                const nextId = inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 0;
+                inventory.push({ id: nextId, employee, category, item, serial, status });
             } else {
-                // Add operation
-                const newId = inventory.length > 0 ? Math.max(...inventory.map(i => i.id)) + 1 : 0;
-                inventory.push({ id: newId, employee, category, item, serial, status });
+                const idx = inventory.findIndex(i => i.id === parseInt(id));
+                if (idx !== -1) {
+                    inventory[idx] = { id: parseInt(id), employee, category, item, serial, status };
+                }
             }
 
-            saveToLocalStorage();
-            resetForm();
-            render();
+            saveState();
+            closeResourceModal();
+            renderDashboard();
         }
 
-        function editItem(id) {
-            if (!isAdmin) return;
-            const item = inventory.find(i => i.id === id);
-            if (!item) return;
-
-            document.getElementById('editItemId').value = item.id;
-            document.getElementById('formEmployee').value = item.employee;
-            document.getElementById('formCategory').value = item.category;
-            document.getElementById('formItem').value = item.item;
-            document.getElementById('formSerial').value = item.serial;
-            document.getElementById('formStatus').value = item.status;
-
-            document.getElementById('submitFormBtn').innerText = "Update Asset Data";
-            document.getElementById('adminPanel').scrollIntoView({ behavior: 'smooth' });
+        function closeDuplicateModal() {
+            document.getElementById('duplicateModal').classList.add('hidden');
         }
 
-        function removeItem(id) {
-            if (!isAdmin) return;
-            if (confirm("Are you absolutely sure you want to permanently delete this asset record?")) {
+        function deleteAssetItem(id) {
+            if(confirm("Are you absolutely sure you want to permanently erase this resource assignment log?")) {
                 inventory = inventory.filter(i => i.id !== id);
-                saveToLocalStorage();
-                render();
+                saveState();
+                renderDashboard();
             }
         }
 
-        function resetForm() {
+        function openAddModal() {
             document.getElementById('assetForm').reset();
-            document.getElementById('editItemId').value = "";
-            document.getElementById('submitFormBtn').innerText = "Add Asset";
+            document.getElementById('formAssetId').value = "";
+            document.getElementById('modalTitle').innerText = "Register Asset Log";
+            document.getElementById('resourceModal').classList.remove('hidden');
         }
 
-        function dismissAlert() {
-            document.getElementById('duplicateAlert').classList.add('hidden');
+        function openEditModal(id) {
+            const item = inventory.find(i => i.id === id);
+            if(item) {
+                document.getElementById('formAssetId').value = item.id;
+                document.getElementById('formEmployee').value = item.employee;
+                document.getElementById('formCategory').value = item.category;
+                document.getElementById('formItem').value = item.item;
+                document.getElementById('formSerial').value = item.serial;
+                document.getElementById('formStatus').value = item.status;
+                document.getElementById('modalTitle').innerText = "Modify Asset Parameters";
+                document.getElementById('resourceModal').classList.remove('hidden');
+            }
         }
 
-        // Render Tables, Calculate Metrics Counters and Regenerate Charts
-        function render() {
-            const searchQuery = document.getElementById('globalSearch').value.toLowerCase();
-            const catFilter = document.getElementById('filterCategory').value;
-            const statFilter = document.getElementById('filterStatus').value;
-
-            // Filter lists based on user options selection
-            const filteredData = inventory.filter(item => {
-                const matchesSearch = item.employee.toLowerCase().includes(searchQuery) || 
-                                      item.item.toLowerCase().includes(searchQuery) || 
-                                      item.serial.toLowerCase().includes(searchQuery) ||
-                                      item.id.toString().includes(searchQuery);
-                const matchesCat = (catFilter === 'All' || item.category === catFilter);
-                const matchesStat = (statFilter === 'All' || item.status === statFilter);
-                return matchesSearch && matchesCat && matchesStat;
-            });
-
-            // Update DOM table rows
-            const tbody = document.getElementById('inventoryTableBody');
-            tbody.innerHTML = '';
-
-            // Update Visibility Header for Admin actions
-            const actionHeaders = document.querySelectorAll('.admin-action-cell');
-            actionHeaders.forEach(el => {
-                if (isAdmin) el.classList.remove('hidden');
-                else el.classList.add('hidden');
-            });
-
-            filteredData.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-800/40 border-b border-slate-700/40 transition-colors";
-                
-                let statusBadgeColor = "bg-slate-700 text-slate-300";
-                if(row.status === 'Working' || row.status === 'Ok') statusBadgeColor = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-                else if(row.status === 'Need New' || row.status === 'Damage') statusBadgeColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
-                else if(row.status === 'OLD' || row.status === 'Not Issued') statusBadgeColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-
-                tr.innerHTML = `
-                    <td class="py-3 px-5 font-mono text-xs text-slate-500">#${row.id}</td>
-                    <td class="py-3 px-5 font-medium text-white">${row.employee}</td>
-                    <td class="py-3 px-5 text-xs text-slate-400">${row.category}</td>
-                    <td class="py-3 px-5 text-slate-200">${row.item}</td>
-                    <td class="py-3 px-5 font-mono text-xs text-blue-400">${row.serial}</td>
-                    <td class="py-3 px-5"><span class="px-2.5 py-1 rounded-full text-xs font-medium ${statusBadgeColor}">${row.status}</span></td>
-                    <td class="py-3 px-5 text-right admin-action-cell ${isAdmin ? '' : 'hidden'}">
-                        <button onclick="editItem(${row.id})" class="text-blue-400 hover:text-blue-300 mx-1.5 transition-colors" title="Edit row"><i class="fa-solid fa-pen-to-square"></i></button>
-                        <button onclick="removeItem(${row.id})" class="text-rose-400 hover:text-rose-300 mx-1.5 transition-colors" title="Remove row"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            // Calculate Metrics Analytics Counters
-            document.getElementById('statTotal').innerText = inventory.length;
-            document.getElementById('statWorking').innerText = inventory.filter(i => i.status === 'Working' || i.status === 'Ok').length;
-            document.getElementById('statAttention').innerText = inventory.filter(i => i.status === 'Need New' || i.status === 'Damage').length;
-            
-            const uniqueEmployees = [...new Set(inventory.map(i => i.employee))].length;
-            document.getElementById('statEmployees').innerText = uniqueEmployees;
-
-            // Refresh Pie Chart Components visual objects 
-            updateCharts();
+        function closeResourceModal() {
+            document.getElementById('resourceModal').classList.add('hidden');
         }
 
-        // Analytical Engine logic for updating Chart.js instances
-        function updateCharts() {
-            // Chart 1: Status aggregation counters
-            const statusCounts = {};
-            inventory.forEach(i => statusCounts[i.status] = (statusCounts[i.status] || 0) + 1);
+        function handleSearch() {
+            renderDashboard();
+        }
 
-            if (statusPieChart) statusPieChart.destroy();
-            const ctxStatus = document.getElementById('statusChart').getContext('2d');
-            statusPieChart = new Chart(ctxStatus, {
+        function updateCharts(catMap, statMap) {
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
+            const statCtx = document.getElementById('statusChart').getContext('2d');
+
+            if(categoryChartInst) categoryChartInst.destroy();
+            if(statusChartInst) statusChartInst.destroy();
+
+            categoryChartInst = new Chart(catCtx, {
                 type: 'pie',
                 data: {
-                    labels: Object.keys(statusCounts),
+                    labels: Object.keys(catMap),
                     datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#6366f1', '#a855f7', '#ec4899'],
-                        borderWidth: 1,
-                        borderColor: '#1e293b'
+                        data: Object.values(catMap),
+                        backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } } }
             });
 
-            // Chart 2: Category mapping aggregation counters
-            const catCounts = {};
-            inventory.forEach(i => catCounts[i.category] = (catCounts[i.category] || 0) + 1);
-
-            if (categoryPieChart) categoryPieChart.destroy();
-            const ctxCat = document.getElementById('categoryChart').getContext('2d');
-            categoryPieChart = new Chart(ctxCat, {
-                type: 'pie',
+            statusChartInst = new Chart(statCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: Object.keys(catCounts),
+                    labels: Object.keys(statMap),
                     datasets: [{
-                        data: Object.values(catCounts),
-                        backgroundColor: ['#3b82f6', '#a855f7'],
-                        borderWidth: 1,
-                        borderColor: '#1e293b'
+                        data: Object.values(statMap),
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#64748b', '#3b82f6', '#ec4899']
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } } }
             });
         }
 
-        // Initialize execution setup sequence on system window load
-        window.onload = init;
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Employee Name,Asset Category,Item Description,Serial SIM Number,Status\n";
+            inventory.forEach(i => {
+                csvContent += `"${i.employee}","${i.category}","${i.item}","${i.serial}","${i.status}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "North_Tools_Inventory_Ledger_2026.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function printValidationProfile() {
+            window.print();
+        }
     </script>
 </body>
 </html>
