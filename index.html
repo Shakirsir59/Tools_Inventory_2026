@@ -1,664 +1,994 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>North Region Master Tracker v4.2</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        .modal { transition: opacity 0.25s ease; }
-        body.modal-active { overflow: hidden; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .metric-card { transition: all 0.2s ease; cursor: pointer; }
-        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .metric-active { border-color: #4f46e5 !important; ring: 2px; border-width: 2px; background-color: #f5f3ff; }
-    </style>
-</head>
-<body class="p-4 md:p-6">
-
-    <!-- Header Console -->
-    <div class="max-w-7xl mx-auto bg-white p-6 rounded-2xl shadow-xs flex flex-col lg:flex-row justify-between items-center mb-6 gap-4 border border-slate-100">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">v4.2 Production Engine</span>
-                <div id="roleBadge" class="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                    <i class="fa-solid fa-user-gear"></i> System Administrator (Active)
-                </div>
-            </div>
-            <h1 class="text-2xl font-black text-slate-800 mt-1 flex items-center gap-2">
-                <i class="fa-solid fa-shield-halved text-indigo-600"></i> North Region Asset Command Center
-            </h1>
-            <p class="text-xs text-slate-500 mt-0.5">Complete Teams Connected. Click any card to instantly audit details or use the live filter matrix.</p>
-        </div>
-        
-        <div class="flex flex-wrap gap-2 items-center w-full lg:w-auto justify-end">
-            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition shadow-xs">
-                <i class="fa-solid fa-file-excel"></i> Export CSV
-            </button>
-            <button onclick="resetToFactoryDefault()" class="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition shadow-xs" title="Reset all custom adjustments back to base team seeds">
-                <i class="fa-solid fa-rotate"></i> Reset Team Database
-            </button>
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer transition shadow-xs">
-                <i class="fa-solid fa-print"></i> Print Report
-            </button>
-        </div>
-    </div>
-
-    <!-- 4 Main Metric Options (Click to Show Details / Filter List) -->
-    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div id="cardMetricAll" onclick="setMetricFilter('ALL')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4 metric-active">
-            <div class="p-3 bg-blue-50 rounded-xl text-blue-600"><i class="fa-solid fa-users text-xl"></i></div>
-            <div>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Field Staff</span>
-                <div id="countPersonnel" class="text-2xl font-black text-slate-800">0</div>
-            </div>
-        </div>
-        <div id="cardMetricSims" onclick="setMetricFilter('SIM')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
-            <div class="p-3 bg-indigo-50 rounded-xl text-indigo-600"><i class="fa-solid fa-sim-card text-xl"></i></div>
-            <div>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Active Telemetry SIMs</span>
-                <div id="countSims" class="text-2xl font-black text-indigo-600">0</div>
-            </div>
-        </div>
-        <div id="cardMetricAssets" onclick="setMetricFilter('ALL_ASSETS')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
-            <div class="p-3 bg-rose-50 rounded-xl text-rose-600"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
-            <div>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Logged Assets</span>
-                <div id="countHardware" class="text-2xl font-black text-rose-600">0</div>
-            </div>
-        </div>
-        <div id="cardMetricDups" onclick="setMetricFilter('CONFLICT')" class="metric-card bg-white p-5 rounded-2xl shadow-xs border border-slate-100 flex items-center gap-4">
-            <div class="p-3 bg-red-100 rounded-xl text-red-700"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
-            <div>
-                <span class="text-[11px] font-bold text-red-500 uppercase tracking-wider block">Duplicates & Deficiencies</span>
-                <div id="countDeficiencies" class="text-2xl font-black text-red-700">0</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Search Engine Bar -->
-    <div class="max-w-7xl mx-auto bg-white p-4 rounded-2xl shadow-xs mb-6 border border-slate-100 flex flex-col md:flex-row gap-3">
-        <div class="relative flex-1">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-            <input type="text" id="searchInput" oninput="filterCards()" placeholder="Search via Employee Name, SIM number, Serial, Model, IMEI..." 
-                   class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-indigo-500 font-medium">
-        </div>
-        <button onclick="clearAllFilters()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl transition cursor-pointer">Reset Filters</button>
-    </div>
-
-    <!-- Allocation Chart View -->
-    <div class="max-w-7xl mx-auto bg-white p-6 rounded-2xl shadow-xs mb-6 border border-slate-100 flex flex-col items-center">
-        <div class="w-full md:w-[450px] h-[200px]">
-            <canvas id="telecomPieChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Master Grid Container -->
-    <div class="max-w-7xl mx-auto">
-        <div id="ledgersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Data Cards will be injected dynamically -->
-        </div>
-    </div>
-
-    <!-- COMPREHENSIVE EDIT MODAL (Add, Edit, Remove integrated) -->
-    <div id="editModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50 transition-opacity duration-200">
-        <div class="modal-overlay absolute w-full h-full bg-slate-900/60 backdrop-blur-xs" onclick="closeModal()"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded-2xl shadow-2xl z-50 overflow-y-auto max-h-[95vh] border border-slate-100">
-            
-            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center rounded-t-2xl">
-                <div>
-                    <h3 class="text-base font-bold flex items-center gap-2" id="modalEmployeeName">Configuration Interface</h3>
-                    <p class="text-[11px] text-slate-400">Add, edit, or remove asset records inside this registry instantly.</p>
-                </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-white cursor-pointer text-2xl transition">&times;</button>
-            </div>
-
-            <div class="p-6 space-y-6 custom-scrollbar overflow-y-auto max-h-[65vh]">
-                <!-- Duplicate / Alert box -->
-                <div id="modalAlertBox" class="hidden bg-red-50 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1"></div>
-
-                <!-- Asset Rows -->
-                <div>
-                    <h4 class="text-xs font-black uppercase text-indigo-600 mb-3 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Assigned Asset Ledger List</h4>
-                    <div id="modalAssetRows" class="space-y-2"></div>
-                </div>
-
-                <hr class="border-slate-100">
-
-                <!-- Add New Asset Row Form -->
-                <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300">
-                    <h4 class="text-xs font-bold uppercase text-slate-600 mb-2"><i class="fa-solid fa-circle-plus"></i> Add New Asset to this Employee</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
-                        <select id="newCategory" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-semibold">
-                            <option value="Telecom Hardware">Telecom Hardware</option>
-                            <option value="Rigger Safety">Rigger Safety</option>
-                        </select>
-                        <input type="text" id="newItemName" placeholder="Item Name (e.g., Zain SIM)" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-medium">
-                        <input type="text" id="newSerial" placeholder="Serial / SIM Number" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-mono">
-                        <select id="newStatus" class="bg-white border border-slate-200 p-2 rounded-lg text-xs font-semibold">
-                            <option value="Working">Working</option>
-                            <option value="Need">Need</option>
-                            <option value="Damage">Damage</option>
-                            <option value="Not Issued">Not Issued</option>
-                        </select>
-                    </div>
-                    <button onclick="addNewAssetItem()" class="mt-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-4 py-2 rounded-lg cursor-pointer transition">
-                        <i class="fa-solid fa-plus"></i> Insert New Asset Item
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Action Footer -->
-            <div class="bg-slate-50 px-6 py-4 flex justify-end gap-2 rounded-b-2xl border-t border-slate-200/60">
-                <button onclick="closeModal()" class="bg-slate-300 hover:bg-slate-400 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition">Cancel</button>
-                <button onclick="saveAllChanges()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-xs cursor-pointer transition shadow-xs"><i class="fa-solid fa-floppy-disk"></i> Save &amp; Apply Changes</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CODE CONTROLLER ENGINE -->
-    <script>
-        const defaultSeeds = [
-            // Majid Mubarak Mohammed
-            {"id":0,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T3F","status":"Working"},
-            {"id":1,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Ethernet Type C","serial":"ROHS","status":"Working"},
-            {"id":2,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Laptop Charger","serial":"4CH24205WL","status":"Working"},
-            {"id":3,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"1","status":"Not Issued"},
-            {"id":4,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446843","status":"Working"},
-            {"id":5,"employee":"Majid Mubarak Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448980","status":"Working"},
-            
-            // Amer Mohammed
-            {"id":6,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Z Book","serial":"5CG2421T85","status":"Working"},
-            {"id":7,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"65W Charger","serial":"N/A","status":"Working"},
-            {"id":8,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
-            {"id":9,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446758","status":"Working"},
-            {"id":10,"employee":"Amer Mohammed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448050","status":"Working"},
-            
-            // Yasir Nadeem
-            {"id":11,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG0462CX0","status":"Working"},
-            {"id":12,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working"},
-            {"id":13,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
-            {"id":14,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446789","status":"Working"},
-            {"id":15,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592448903","status":"Working"},
-            {"id":16,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"580174700","status":"Working"},
-            {"id":17,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Zain SIM","serial":"592446967","status":"Working"},
-            {"id":18,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Kingston USB Hub","serial":"N/A","status":"Working"},
-            {"id":19,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378535","status":"Working"},
-            {"id":20,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044379731","status":"Working"},
-            {"id":21,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539847","status":"Working"},
-            {"id":22,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104805962","status":"Working"},
-            {"id":23,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Samsung S9","serial":"354663104812380","status":"Working"},
-            {"id":24,"employee":"Yasir Nadeem","category":"Telecom Hardware","item":"Huawei CPE","serial":"867206040945128","status":"Working"},
-            {"id":25,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Belt","serial":"Old","status":"Working"},
-            {"id":26,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Shoe","serial":"Old","status":"Working"},
-            {"id":27,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Safety Vest","serial":"1","status":"Working"},
-            {"id":28,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Working Gloves","serial":"1","status":"Working"},
-            {"id":29,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 17","serial":"1","status":"Working"},
-            {"id":30,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Spanner 19","serial":"1","status":"Working"},
-            {"id":31,"employee":"Yasir Nadeem","category":"Rigger Safety","item":"Car Inverter","serial":"Old","status":"Working"},
-            
-            // Saeed Iqbal
-            {"id":32,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP ProBook","serial":"5CG1152Y1V","status":"Working"},
-            {"id":33,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP Charger","serial":"N/A","status":"Working"},
-            {"id":34,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"HP Bag","serial":"N/A","status":"Need"},
-            {"id":35,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378261","status":"Working"},
-            {"id":36,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044377792","status":"Working"},
-            {"id":37,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122746814","status":"Working"},
-            {"id":38,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Samsung S22","serial":"354839122784532","status":"Working"},
-            {"id":39,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Huawei Mate 30 Pro","serial":"862781041935423","status":"Damage"},
-            {"id":40,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592448269","status":"Working"},
-            {"id":41,"employee":"Saeed Iqbal","category":"Telecom Hardware","item":"Zain SIM","serial":"592446971","status":"Working"},
-
-            // Ashfaq Ahmed
-            {"id":42,"employee":"Ashfaq Ahmed","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378626","status":"Working"},
-            {"id":43,"employee":"Ashfaq Ahmed","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052442296","status":"Working"},
-            {"id":44,"employee":"Ashfaq Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448956","status":"Working"},
-            {"id":45,"employee":"Ashfaq Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446863","status":"Working"},
-
-            // Khaja Moinuddin
-            {"id":46,"employee":"Khaja Moinuddin","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539821","status":"Working"},
-            {"id":47,"employee":"Khaja Moinuddin","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052538184","status":"Working"},
-            {"id":48,"employee":"Khaja Moinuddin","category":"Telecom Hardware","item":"Zain SIM","serial":"592446922","status":"Working"},
-            {"id":49,"employee":"Khaja Moinuddin","category":"Telecom Hardware","item":"Zain SIM","serial":"592448375","status":"Working"},
-
-            // Abdul Azeez
-            {"id":50,"employee":"Abdul Azeez","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378121","status":"Working"},
-            {"id":51,"employee":"Abdul Azeez","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052435746","status":"Working"},
-            {"id":52,"employee":"Abdul Azeez","category":"Telecom Hardware","item":"Zain SIM","serial":"592446853","status":"Working"},
-            {"id":53,"employee":"Abdul Azeez","category":"Telecom Hardware","item":"Zain SIM","serial":"592448107","status":"Working"},
-
-            // Malik Majid
-            {"id":54,"employee":"Malik Majid","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378527","status":"Working"},
-            {"id":55,"employee":"Malik Majid","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044377750","status":"Working"},
-            {"id":56,"employee":"Malik Majid","category":"Telecom Hardware","item":"Zain SIM","serial":"592446976","status":"Working"},
-            {"id":57,"employee":"Malik Majid","category":"Telecom Hardware","item":"Zain SIM","serial":"592448074","status":"Working"},
-
-            // Zeeshan Ali
-            {"id":58,"employee":"Zeeshan Ali","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378030","status":"Working"},
-            {"id":59,"employee":"Zeeshan Ali","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044379749","status":"Working"},
-            {"id":60,"employee":"Zeeshan Ali","category":"Telecom Hardware","item":"Zain SIM","serial":"592446917","status":"Working"},
-            {"id":61,"employee":"Zeeshan Ali","category":"Telecom Hardware","item":"Zain SIM","serial":"592448324","status":"Working"},
-
-            // Mushtaq Ahmed
-            {"id":62,"employee":"Mushtaq Ahmed","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539953","status":"Working"},
-            {"id":63,"employee":"Mushtaq Ahmed","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044378139","status":"Working"},
-            {"id":64,"employee":"Mushtaq Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446944","status":"Working"},
-            {"id":65,"employee":"Mushtaq Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448206","status":"Working"},
-
-            // Tariq Ahmed
-            {"id":66,"employee":"Tariq Ahmed","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044539854","status":"Working"},
-            {"id":67,"employee":"Tariq Ahmed","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052438880","status":"Working"},
-            {"id":68,"employee":"Tariq Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446904","status":"Working"},
-            {"id":69,"employee":"Tariq Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448318","status":"Working"},
-
-            // Wael
-            {"id":70,"employee":"Wael","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052531601","status":"Working"},
-            {"id":71,"employee":"Wael","category":"Telecom Hardware","item":"Zain SIM","serial":"592446864","status":"Working"},
-
-            // Shoaib Ahmed
-            {"id":72,"employee":"Shoaib Ahmed","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052441991","status":"Working"},
-            {"id":73,"employee":"Shoaib Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448152","status":"Working"},
-
-            // Shakeel Ahmed
-            {"id":74,"employee":"Shakeel Ahmed","category":"Telecom Hardware","item":"Huawei P40","serial":"863725044540001","status":"Working"},
-            {"id":75,"employee":"Shakeel Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448347","status":"Working"},
-
-            // Imran Khan
-            {"id":76,"employee":"Imran Khan","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052435423","status":"Working"},
-            {"id":77,"employee":"Imran Khan","category":"Telecom Hardware","item":"Zain SIM","serial":"592448345","status":"Working"},
-
-            // Shahnawaz Khan
-            {"id":78,"employee":"Shahnawaz Khan","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052439128","status":"Working"},
-            {"id":79,"employee":"Shahnawaz Khan","category":"Telecom Hardware","item":"Zain SIM","serial":"592446820","status":"Working"},
-
-            // Naveed Ahmed
-            {"id":80,"employee":"Naveed Ahmed","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052532454","status":"Working"},
-            {"id":81,"employee":"Naveed Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592446881","status":"Working"},
-
-            // Umar Farooq
-            {"id":82,"employee":"Umar Farooq","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052538192","status":"Working"},
-            {"id":83,"employee":"Umar Farooq","category":"Telecom Hardware","item":"Zain SIM","serial":"592448149","status":"Working"},
-
-            // Junaid Ahmed
-            {"id":84,"employee":"Junaid Ahmed","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052435552","status":"Working"},
-            {"id":85,"employee":"Junaid Ahmed","category":"Telecom Hardware","item":"Zain SIM","serial":"592448343","status":"Working"},
-
-            // Faisal Farooq
-            {"id":86,"employee":"Faisal Farooq","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052441926","status":"Working"},
-            {"id":87,"employee":"Faisal Farooq","category":"Telecom Hardware","item":"Zain SIM","serial":"592448135","status":"Working"},
-
-            // Bakheet Mubarak
-            {"id":88,"employee":"Bakheet Mubarak","category":"Telecom Hardware","item":"Huawei Note 8i","serial":"869502052435415","status":"Working"},
-            {"id":89,"employee":"Bakheet Mubarak","category":"Telecom Hardware","item":"Zain SIM","serial":"592448286","status":"Working"}
-        ];
-
-        let masterInventory = [];
-        let pieChartInstance = null;
-        let currentEditingEmployee = "";
-        let duplicateSerialsSet = new Set();
-        let activeMetricFilter = "ALL";
-
-        function initializeCoreEngine() {
-            const localStored = localStorage.getItem('NORTH_REGION_MASTER_DATA');
-            if (localStored) {
-                masterInventory = JSON.parse(localStored);
-            } else {
-                masterInventory = [...defaultSeeds];
-                saveToLocalStorage();
-            }
-            evaluateDataStates();
-        }
-
-        function resetToFactoryDefault() {
-            if(confirm("Are you sure you want to restore the database to base team data? All newly added custom adjustments will be wiped out!")) {
-                masterInventory = [...defaultSeeds];
-                saveToLocalStorage();
-                evaluateDataStates();
-            }
-        }
-
-        function saveToLocalStorage() {
-            localStorage.setItem('NORTH_REGION_MASTER_DATA', JSON.stringify(masterInventory));
-        }
-
-        function evaluateDataStates() {
-            findDuplicateSerials();
-            renderCounters();
-            renderCards();
-            renderPieChart();
-        }
-
-        function findDuplicateSerials() {
-            duplicateSerialsSet.clear();
-            const counts = {};
-            masterInventory.forEach(i => {
-                const s = i.serial ? i.serial.trim().toLowerCase() : "";
-                if (s && s !== "n/a" && s !== "1" && s !== "old" && s !== "missing") {
-                    counts[s] = (counts[s] || 0) + 1;
-                }
-            });
-            for (const s in counts) {
-                if (counts[s] > 1) duplicateSerialsSet.add(s);
-            }
-        }
-
-        function renderCounters() {
-            const employees = [...new Set(masterInventory.map(i => i.employee))];
-            const sims = masterInventory.filter(i => i.item.toLowerCase().includes("sim")).length;
-            const deficiencies = masterInventory.filter(i => i.status === "Need" || i.status === "Damage").length;
-            
-            const duplicateCount = masterInventory.filter(i => i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase())).length;
-
-            document.getElementById('countPersonnel').innerText = employees.length;
-            document.getElementById('countSims').innerText = sims;
-            document.getElementById('countHardware').innerText = masterInventory.length;
-            document.getElementById('countDeficiencies').innerText = deficiencies + duplicateCount;
-        }
-
-        function setMetricFilter(mode) {
-            activeMetricFilter = mode;
-            
-            document.querySelectorAll('.metric-card').forEach(c => c.classList.remove('metric-active'));
-            if(mode === 'ALL') document.getElementById('cardMetricAll').classList.add('metric-active');
-            if(mode === 'SIM') document.getElementById('cardMetricSims').classList.add('metric-active');
-            if(mode === 'ALL_ASSETS') document.getElementById('cardMetricAssets').classList.add('metric-active');
-            if(mode === 'CONFLICT') document.getElementById('cardMetricDups').classList.add('metric-active');
-
-            filterCards();
-        }
-
-        function renderCards() {
-            const container = document.getElementById('ledgersContainer');
-            container.innerHTML = '';
-            const employees = [...new Set(masterInventory.map(item => item.employee))];
-
-            employees.forEach((emp, idx) => {
-                const items = masterInventory.filter(i => i.employee === emp);
-                const telecom = items.filter(i => i.category === "Telecom Hardware");
-                const rigger = items.filter(i => i.category === "Rigger Safety");
-                const hasIssue = items.some(i => i.status === "Need" || i.status === "Damage");
-                const hasDup = items.some(i => i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase()));
-
-                let telecomHTML = '';
-                telecom.forEach(i => {
-                    let stColor = 'bg-emerald-100 text-emerald-800';
-                    if (i.status === 'Need') stColor = 'bg-rose-100 text-rose-800';
-                    if (i.status === 'Damage') stColor = 'bg-red-600 text-white';
-                    if (i.status === 'Not Issued') stColor = 'bg-slate-200 text-slate-700';
-
-                    const isDup = i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase());
-
-                    telecomHTML += `
-                        <div class="flex justify-between items-center bg-slate-50 p-2 rounded-xl border ${isDup ? 'border-red-400 bg-red-50' : 'border-slate-100'} text-xs">
-                            <div>
-                                <div class="font-bold text-slate-700 text-[11px]">${i.item} ${isDup ? '<span class="text-red-600 font-black text-[9px] bg-red-100 px-1 rounded-xs">[⚠️ DUP]</span>':''}</div>
-                                <div class="text-[10px] font-mono text-slate-400">${i.serial}</div>
-                            </div>
-                            <span class="${stColor} text-[9px] font-black px-2 py-0.5 rounded-md">${i.status}</span>
-                        </div>
-                    `;
-                });
-
-                let riggerHTML = '';
-                rigger.forEach(i => {
-                    const isDup = i.serial && duplicateSerialsSet.has(i.serial.trim().toLowerCase());
-                    let rClass = i.status === 'Need' ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-amber-50 text-amber-800 border-amber-200';
-                    if (isDup) rClass = 'bg-red-100 text-red-900 border-red-400 font-bold';
-
-                    riggerHTML += `<span class="${rClass} border text-[10px] px-2 py-1 rounded-lg m-0.5 inline-block">${i.item}: ${i.serial}</span>`;
-                });
-
-                let cardBorder = 'border-slate-200';
-                if (hasIssue) cardBorder = 'border-l-4 border-l-rose-500 border-slate-200';
-                if (hasDup) cardBorder = 'border-2 border-red-500 bg-red-50/5';
-
-                container.innerHTML += `
-                    <div class="card bg-white p-5 rounded-2xl border ${cardBorder} flex flex-col justify-between transition hover:shadow-md" 
-                         data-employee="${emp.toLowerCase()}" 
-                         data-hasdup="${hasDup}"
-                         data-hasissue="${hasIssue}"
-                         data-items-text="${items.map(i=>i.item + ' ' + i.serial).join(' ').toLowerCase()}">
-                        <div>
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <h3 class="font-black text-slate-800 text-base tracking-tight card-emp-name">${emp}</h3>
-                                </div>
-                                <button onclick="openModal('${emp.replace(/'/g, "\\'")}')" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 px-3 py-1.5 rounded-xl font-bold border border-indigo-100 cursor-pointer transition">
-                                    <i class="fa-solid fa-user-gear"></i> Edit / View
-                                </button>
-                            </div>
-
-                            <div class="mt-4">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-laptop text-indigo-500"></i> Telecom Pack</span>
-                                <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1">${telecomHTML || '<p class="text-xs text-slate-400 italic">No assets</p>'}</div>
-                            </div>
-
-                            <div class="mt-4">
-                                <span class="text-[9px] font-black text-slate-400 uppercase tracking-wider block mb-2"><i class="fa-solid fa-helmet-safety text-amber-500"></i> Rigger Safety Units</span>
-                                <div class="flex flex-wrap">${riggerHTML || '<p class="text-xs text-slate-400 italic">No safety tools</p>'}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            filterCards();
-        }
-
-        function filterCards() {
-            const query = document.getElementById('searchInput').value.trim().toLowerCase();
-            const metric = activeMetricFilter;
-
-            document.querySelectorAll('.card').forEach(card => {
-                const empName = card.getAttribute('data-employee');
-                const itemsText = card.getAttribute('data-items-text');
-                const hasDup = card.getAttribute('data-hasdup') === 'true';
-                const hasIssue = card.getAttribute('data-hasissue') === 'true';
-
-                const matchesSearch = empName.includes(query) || itemsText.includes(query);
-                
-                let matchesMetric = true;
-                if(metric === "SIM") matchesMetric = itemsText.includes("sim");
-                if(metric === "CONFLICT") matchesMetric = hasDup || hasIssue;
-                if(metric === "ALL_ASSETS") matchesMetric = true; 
-
-                if (matchesSearch && matchesMetric) {
-                    card.style.display = "flex";
-                } else {
-                    card.style.display = "none";
-                }
-            });
-        }
-
-        function clearAllFilters() {
-            document.getElementById('searchInput').value = "";
-            setMetricFilter('ALL');
-        }
-
-        function openModal(employeeName) {
-            currentEditingEmployee = employeeName;
-            document.getElementById('modalEmployeeName').innerText = `Manage Ledger: ${employeeName}`;
-            
-            buildModalRows();
-            checkAndRenderModalAlerts();
-
-            const modal = document.getElementById('editModal');
-            modal.classList.remove('opacity-0', 'pointer-events-none');
-            document.body.classList.add('modal-active');
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').classList.add('opacity-0', 'pointer-events-none');
-            document.body.classList.remove('modal-active');
-            currentEditingEmployee = "";
-        }
-
-        function buildModalRows() {
-            const container = document.getElementById('modalAssetRows');
-            container.innerHTML = "";
-
-            const items = masterInventory.filter(i => i.employee === currentEditingEmployee);
-
-            items.forEach(item => {
-                const isDup = item.serial && duplicateSerialsSet.has(item.serial.trim().toLowerCase());
-
-                container.innerHTML += `
-                    <div class="flex flex-col sm:flex-row gap-2 items-center ${isDup ? 'bg-red-50 border-red-300 p-2':'bg-slate-50 border-slate-200 p-2'} rounded-xl border text-xs w-full">
-                        <div class="w-full sm:w-1/3">
-                            <input type="text" value="${item.item}" oninput="updateItemField(${item.id}, 'item', this.value)" class="bg-white border border-slate-200 p-1.5 rounded-lg w-full font-bold text-slate-700">
-                        </div>
-                        <div class="w-full sm:w-1/3">
-                            <input type="text" value="${item.serial}" oninput="updateItemField(${item.id}, 'serial', this.value)" class="bg-white border border-slate-200 p-1.5 rounded-lg w-full font-mono ${isDup ? 'text-red-700 font-bold border-red-300 bg-red-50': 'text-slate-500'}">
-                        </div>
-                        <select onchange="updateItemField(${item.id}, 'status', this.value)" class="bg-white border border-slate-200 p-1.5 rounded-lg w-full sm:w-1/4 font-bold text-slate-600">
-                            <option value="Working" ${item.status === 'Working' ? 'selected':''}>Working</option>
-                            <option value="Need" ${item.status === 'Need' ? 'selected':''}>Need</option>
-                            <option value="Damage" ${item.status === 'Damage' ? 'selected':''}>Damage</option>
-                            <option value="Not Issued" ${item.status === 'Not Issued' ? 'selected':''}>Not Issued</option>
-                        </select>
-                        <button onclick="removeItemLine(${item.id})" class="text-rose-500 hover:text-rose-700 p-2 cursor-pointer transition text-sm" title="Remove Asset Item">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        function checkAndRenderModalAlerts() {
-            const alertBox = document.getElementById('modalAlertBox');
-            alertBox.innerHTML = "";
-            let conflicts = [];
-
-            const currentItems = masterInventory.filter(i => i.employee === currentEditingEmployee);
-            
-            currentItems.forEach(item => {
-                const s = item.serial ? item.serial.trim().toLowerCase() : "";
-                if (s && s !== "n/a" && s !== "1" && s !== "old" && s !== "missing") {
-                    const matches = masterInventory.filter(allI => allI.employee !== currentEditingEmployee && allI.serial && allI.serial.trim().toLowerCase() === s);
-                    if (matches.length > 0) {
-                        matches.forEach(m => {
-                            conflicts.push(`⚠️ Clashing Identity: Serial/Number [${item.serial}] is ALSO assigned to worker: ${m.employee}`);
-                        });
-                    }
-                }
-            });
-
-            if (conflicts.length > 0) {
-                alertBox.className = "bg-red-50 border-2 border-red-500 p-4 rounded-xl text-red-900 text-xs font-bold space-y-1 block";
-                conflicts.forEach(msg => { alertBox.innerHTML += `<div>${msg}</div>`; });
-            } else {
-                alertBox.className = "hidden";
-            }
-        }
-
-        function updateItemField(id, field, value) {
-            const asset = masterInventory.find(i => i.id === id);
-            if (asset) {
-                asset[field] = value;
-                findDuplicateSerials();
-                checkAndRenderModalAlerts();
-            }
-        }
-
-        function addNewAssetItem() {
-            const cat = document.getElementById('newCategory').value;
-            const name = document.getElementById('newItemName').value.trim();
-            const ser = document.getElementById('newSerial').value.trim();
-            const stat = document.getElementById('newStatus').value;
-
-            if (!name || !ser) {
-                alert("Please fill Item Name and Serial details.");
-                return;
-            }
-
-            const nextId = masterInventory.length > 0 ? Math.max(...masterInventory.map(i => i.id)) + 1 : 0;
-            
-            masterInventory.push({ 
-                id: nextId, 
-                employee: currentEditingEmployee, 
-                category: cat, 
-                item: name, 
-                serial: ser, 
-                status: stat 
-            });
-
-            document.getElementById('newItemName').value = "";
-            document.getElementById('newSerial').value = "";
-            
-            findDuplicateSerials();
-            buildModalRows();
-            checkAndRenderModalAlerts();
-        }
-
-        function removeItemLine(id) {
-            if (confirm("Are you sure you want to permanently delete this asset item?")) {
-                masterInventory = masterInventory.filter(i => i.id !== id);
-                findDuplicateSerials();
-                buildModalRows(); 
-                checkAndRenderModalAlerts();
-            }
-        }
-
-        function saveAllChanges() {
-            saveToLocalStorage();
-            evaluateDataStates();
-            closeModal();
-        }
-
-        function renderPieChart() {
-            const trackingMap = {};
-            masterInventory.forEach(i => {
-                let name = i.item;
-                if(name.toLowerCase().includes("sim")) name = "SIM Cards";
-                else if(name.toLowerCase().includes("p40") || name.toLowerCase().includes("8i") || name.toLowerCase().includes("s22") || name.toLowerCase().includes("s9")) name = "Smartphones";
-                else if(name.toLowerCase().includes("book") || name.toLowerCase().includes("probook") || name.toLowerCase().includes("laptop")) name = "Laptops";
-                else name = "Other Infrastructure / Tools";
-                trackingMap[name] = (trackingMap[name] || 0) + 1;
-            });
-
-            const labels = Object.keys(trackingMap);
-            const dataValues = Object.values(trackingMap);
-
-            const ctx = document.getElementById('telecomPieChart').getContext('2d');
-            if (pieChartInstance) { pieChartInstance.destroy(); }
-
-            pieChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: dataValues,
-                        backgroundColor: ['#6366f1', '#3b82f6', '#f59e0b', '#ef4444', '#10b981'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9, weight: 'bold' } } } } 
-                }
-            });
-        }
-
-        function exportToExcel() {
-            let csv = "data:text/csv;charset=utf-8,Employee,Category,Asset Item Model,Serial Identifier,Status\n";
-            masterInventory.forEach(r => { csv += `"${r.employee}","${r.category}","${r.item}","${r.serial}","${r.status}"\n`; });
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", "North_Region_Inventory_Report.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        window.onload = initializeCoreEngine;
-    </script>
-</body>
-</html>
+const defaultSeeds = [
+  {
+    "id": 0,
+    "employee": "Majid Mubarak Mohammed",
+    "category": "Telecom Hardware",
+    "item": "HP Z Book",
+    "serial": "5CG2421T3F",
+    "status": "Working"
+  },
+  {
+    "id": 1,
+    "employee": "Majid Mubarak Mohammed",
+    "category": "Telecom Hardware",
+    "item": "Ethernet Type C",
+    "serial": "ROHS",
+    "status": "Working"
+  },
+  {
+    "id": 2,
+    "employee": "Majid Mubarak Mohammed",
+    "category": "Telecom Hardware",
+    "item": "HP Laptop Charger",
+    "serial": "4CH24205WL",
+    "status": "Working"
+  },
+  {
+    "id": 3,
+    "employee": "Majid Mubarak Mohammed",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 4,
+    "employee": "Majid Mubarak Mohammed",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446843",
+    "status": "Working"
+  },
+  {
+    "id": 5,
+    "employee": "Majid Mubarak Mohammed",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448980",
+    "status": "Working"
+  },
+  {
+    "id": 6,
+    "employee": "Amer Mohammed",
+    "category": "Telecom Hardware",
+    "item": "HP Z Book",
+    "serial": "5CG2421T85",
+    "status": "Working"
+  },
+  {
+    "id": 7,
+    "employee": "Amer Mohammed",
+    "category": "Telecom Hardware",
+    "item": "65W Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 8,
+    "employee": "Amer Mohammed",
+    "category": "Telecom Hardware",
+    "item": "Ethernet Type C",
+    "serial": "ROHS",
+    "status": "Working"
+  },
+  {
+    "id": 9,
+    "employee": "Amer Mohammed",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 10,
+    "employee": "Amer Mohammed",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446758",
+    "status": "Working"
+  },
+  {
+    "id": 11,
+    "employee": "Amer Mohammed",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448050",
+    "status": "Working"
+  },
+  {
+    "id": 12,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "HP ProBook",
+    "serial": "5CG0462CX0",
+    "status": "Working"
+  },
+  {
+    "id": 13,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "HP Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 14,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 15,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446789",
+    "status": "Working"
+  },
+  {
+    "id": 16,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448903",
+    "status": "Working"
+  },
+  {
+    "id": 17,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "580174700",
+    "status": "Working"
+  },
+  {
+    "id": 18,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446967",
+    "status": "Working"
+  },
+  {
+    "id": 19,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Kingston USB Hub",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 20,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044378535",
+    "status": "Working"
+  },
+  {
+    "id": 21,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044379731",
+    "status": "Working"
+  },
+  {
+    "id": 22,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044539847",
+    "status": "Working"
+  },
+  {
+    "id": 23,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Samsung S9",
+    "serial": "354663104805962",
+    "status": "Working"
+  },
+  {
+    "id": 24,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Samsung S9",
+    "serial": "354663104812380",
+    "status": "Working"
+  },
+  {
+    "id": 25,
+    "employee": "Yasir Nadeem",
+    "category": "Telecom Hardware",
+    "item": "Huawei CPE",
+    "serial": "867206040945128",
+    "status": "Working"
+  },
+  {
+    "id": 26,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Safety Belt",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 27,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Safety Shoe",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 28,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Safety Vest",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 29,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Working Gloves",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 30,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Spanner 17",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 31,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Spanner 19",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 32,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Spanner 13",
+    "serial": "1",
+    "status": "Need New"
+  },
+  {
+    "id": 33,
+    "employee": "Yasir Nadeem",
+    "category": "Rigger Safety",
+    "item": "Car Inverter",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 34,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "HP ProBook",
+    "serial": "5CG1152Y1V",
+    "status": "Working"
+  },
+  {
+    "id": 35,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "HP Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 36,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 37,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044378261",
+    "status": "Working"
+  },
+  {
+    "id": 38,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044377792",
+    "status": "Working"
+  },
+  {
+    "id": 39,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Samsung S22",
+    "serial": "354839122746814",
+    "status": "Working"
+  },
+  {
+    "id": 40,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Samsung S22",
+    "serial": "354839122784532",
+    "status": "Working"
+  },
+  {
+    "id": 41,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Huawei Mate 30 Pro",
+    "serial": "862781041935423",
+    "status": "Damage"
+  },
+  {
+    "id": 42,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448269",
+    "status": "Working"
+  },
+  {
+    "id": 43,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446971",
+    "status": "Working"
+  },
+  {
+    "id": 44,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446902",
+    "status": "Working"
+  },
+  {
+    "id": 45,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446981",
+    "status": "Working"
+  },
+  {
+    "id": 46,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Kensington USB Hub",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 47,
+    "employee": "Saeed Iqbal",
+    "category": "Telecom Hardware",
+    "item": "Anker USB Hub",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 48,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Safety Belt",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 49,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Safety Shoe",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 50,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Safety Helmet",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 51,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Spanner 17",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 52,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Spanner 19",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 53,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Spanner 13",
+    "serial": "1",
+    "status": "Need New"
+  },
+  {
+    "id": 54,
+    "employee": "Saeed Iqbal",
+    "category": "Rigger Safety",
+    "item": "Car Inverter",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 55,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "HP Elite Book",
+    "serial": "5CG0462CY2",
+    "status": "Working"
+  },
+  {
+    "id": 56,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "HP Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 57,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 58,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448818",
+    "status": "Working"
+  },
+  {
+    "id": 59,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592449627",
+    "status": "Working"
+  },
+  {
+    "id": 60,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448924",
+    "status": "Working"
+  },
+  {
+    "id": 61,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446963",
+    "status": "Working"
+  },
+  {
+    "id": 62,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Kensington USB Hub",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 63,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Anker USB Hub",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 64,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044497160",
+    "status": "Working"
+  },
+  {
+    "id": 65,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044529418",
+    "status": "Working"
+  },
+  {
+    "id": 66,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Samsung S22",
+    "serial": "354839122742953",
+    "status": "Working"
+  },
+  {
+    "id": 67,
+    "employee": "Muhammad Sajawal",
+    "category": "Telecom Hardware",
+    "item": "Samsung S23",
+    "serial": "355928813629956",
+    "status": "Working"
+  },
+  {
+    "id": 68,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Safety Belt",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 69,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Safety Shoe",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 70,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Safety Vest",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 71,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Safety Helmet",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 72,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Working Gloves",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 73,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Spanner 17",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 74,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Spanner 19",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 75,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Spanner 13",
+    "serial": "1",
+    "status": "Need New"
+  },
+  {
+    "id": 76,
+    "employee": "Muhammad Sajawal",
+    "category": "Rigger Safety",
+    "item": "Car Inverter",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 77,
+    "employee": "Fuaad Alnakhli",
+    "category": "Telecom Hardware",
+    "item": "HP Elite Book 840 G8",
+    "serial": "5CG2138VYF",
+    "status": "Working"
+  },
+  {
+    "id": 78,
+    "employee": "Fuaad Alnakhli",
+    "category": "Telecom Hardware",
+    "item": "65W Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 79,
+    "employee": "Fuaad Alnakhli",
+    "category": "Telecom Hardware",
+    "item": "Ethernet Type C",
+    "serial": "ROHS",
+    "status": "Working"
+  },
+  {
+    "id": 80,
+    "employee": "Fuaad Alnakhli",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 81,
+    "employee": "Fuaad Alnakhli",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446849",
+    "status": "Working"
+  },
+  {
+    "id": 82,
+    "employee": "Fuaad Alnakhli",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448969",
+    "status": "Working"
+  },
+  {
+    "id": 83,
+    "employee": "Majed AlHarbi",
+    "category": "Telecom Hardware",
+    "item": "HP Elite Book 840 G8",
+    "serial": "5CG2138WDS",
+    "status": "Working"
+  },
+  {
+    "id": 84,
+    "employee": "Majed AlHarbi",
+    "category": "Telecom Hardware",
+    "item": "65W Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 85,
+    "employee": "Majed AlHarbi",
+    "category": "Telecom Hardware",
+    "item": "Ethernet Type C",
+    "serial": "ROHS",
+    "status": "Working"
+  },
+  {
+    "id": 86,
+    "employee": "Majed AlHarbi",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 87,
+    "employee": "Majed AlHarbi",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448592",
+    "status": "Working"
+  },
+  {
+    "id": 88,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "HP Laptop",
+    "serial": "5CG2471J9M",
+    "status": "Working"
+  },
+  {
+    "id": 89,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Tools Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 90,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Samsung NOTE 5",
+    "serial": "352560075246733",
+    "status": "Working"
+  },
+  {
+    "id": 91,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Samsung NOTE 5",
+    "serial": "352560075362621",
+    "status": "Working"
+  },
+  {
+    "id": 92,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Samsung NOTE 5",
+    "serial": "352560075363660",
+    "status": "Working"
+  },
+  {
+    "id": 93,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Samsung NOTE 5",
+    "serial": "352560075363009",
+    "status": "Working"
+  },
+  {
+    "id": 94,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446936",
+    "status": "Working"
+  },
+  {
+    "id": 95,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446923",
+    "status": "Working"
+  },
+  {
+    "id": 96,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446921",
+    "status": "Working"
+  },
+  {
+    "id": 97,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044531463",
+    "status": "Working"
+  },
+  {
+    "id": 98,
+    "employee": "Naveed Ahmad",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044383790",
+    "status": "Working"
+  },
+  {
+    "id": 99,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Safety Belt",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 100,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Safety Shoe",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 101,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Safety Helmet",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 102,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Spanner 17",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 103,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Spanner 19",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 104,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Spanner 13",
+    "serial": "1",
+    "status": "Need New"
+  },
+  {
+    "id": 105,
+    "employee": "Naveed Ahmad",
+    "category": "Rigger Safety",
+    "item": "Car Inverter",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 106,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "HP ProBook",
+    "serial": "5CG1152XWZ",
+    "status": "Working"
+  },
+  {
+    "id": 107,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "HP Charger",
+    "serial": "1",
+    "status": "Working"
+  },
+  {
+    "id": 108,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "HP Bag",
+    "serial": "1",
+    "status": "Not Issued"
+  },
+  {
+    "id": 109,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592446755",
+    "status": "Working"
+  },
+  {
+    "id": 110,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "Zain SIM",
+    "serial": "592448107",
+    "status": "Working"
+  },
+  {
+    "id": 111,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044377982",
+    "status": "Working"
+  },
+  {
+    "id": 112,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "Huawei P40",
+    "serial": "863725044497350",
+    "status": "Working"
+  },
+  {
+    "id": 113,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "Samsung S22",
+    "serial": "354839122784534",
+    "status": "Working"
+  },
+  {
+    "id": 114,
+    "employee": "Adnan Ali",
+    "category": "Telecom Hardware",
+    "item": "Samsung S22",
+    "serial": "354839122756816",
+    "status": "Working"
+  },
+  {
+    "id": 115,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Safety Belt",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 116,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Safety Shoe",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 117,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Safety Helmet",
+    "serial": "1",
+    "status": "OLD"
+  },
+  {
+    "id": 118,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Spanner 17",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 119,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Spanner 19",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 120,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Spanner 13",
+    "serial": "1",
+    "status": "Need New"
+  },
+  {
+    "id": 121,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Car Inverter",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 122,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Working Gloves",
+    "serial": "1",
+    "status": "Ok"
+  },
+  {
+    "id": 123,
+    "employee": "Adnan Ali",
+    "category": "Rigger Safety",
+    "item": "Safety Vest",
+    "serial": "1",
+    "status": "Ok"
+  }
+];
