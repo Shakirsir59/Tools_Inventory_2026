@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Dashboard</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Advanced Employee & Asset Dashboard</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- Chart.js for Pie Chart -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Excel Export Library (SheetJS) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- PDF Export Libraries (jsPDF + AutoTable) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans antialiased text-gray-800">
 
@@ -27,7 +32,7 @@
                 </nav>
             </div>
             <div class="text-xs text-slate-400 border-t border-slate-800 pt-4">
-                Real-time System Active
+                Security & Asset Tracking Active
             </div>
         </div>
 
@@ -36,13 +41,13 @@
             <!-- Top Header -->
             <header class="bg-white shadow-sm px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sticky top-0 z-10">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Employee Directory</h1>
-                    <p class="text-sm text-gray-500">Manage your workforce, tools, and simulations</p>
+                    <h1 class="text-2xl font-bold text-slate-800">Employee & Asset Directory</h1>
+                    <p class="text-sm text-gray-500">Live monitoring, inventory conflict tracking & secure actions</p>
                 </div>
                 <!-- Search Bar -->
                 <div class="relative w-full sm:w-72">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search by name, tool, or sim..." 
+                    <input type="text" id="searchBar" onkeyup="filterEmployees()" placeholder="Search name, team, sim, serial..." 
                         class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50">
                 </div>
             </header>
@@ -50,11 +55,11 @@
             <main class="p-6 max-w-7xl w-full mx-auto space-y-6">
                 <!-- Top Row: Stats & Chart -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Stats Cards -->
+                    <!-- Stats Cards & Form -->
                     <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Employees</p>
+                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Headcount</p>
                                 <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalCount">0</h3>
                             </div>
                             <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl text-xl">
@@ -63,24 +68,36 @@
                         </div>
                         <div class="bg-white p-6 rounded-2xl shadow-xs border border-gray-100 flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Active Tools / Sims</p>
+                                <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Tracked Devices / Sims</p>
                                 <h3 class="text-3xl font-bold mt-1 text-slate-800" id="totalTools">0</h3>
                             </div>
                             <div class="p-4 bg-blue-50 text-blue-600 rounded-2xl text-xl">
-                                <i class="fa-solid fa-laptop-code"></i>
+                                <i class="fa-solid fa-mobile-screen-button"></i>
                             </div>
                         </div>
                         
-                        <!-- Add Employee Form / Quick Actions -->
+                        <!-- Add Employee Form -->
                         <div class="sm:col-span-2 bg-white p-6 rounded-2xl shadow-xs border border-gray-100">
-                            <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Add New Employee</h2>
-                            <form id="employeeForm" onsubmit="saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <h2 class="text-lg font-semibold mb-4 text-slate-800"><i class="fa-solid fa-user-plus text-emerald-500 mr-2"></i>Add / Update Record</h2>
+                            <form id="employeeForm" onsubmit="saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input type="hidden" id="editIndex" value="-1">
-                                <input type="text" id="empName" placeholder="Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <input type="text" id="empTeam" placeholder="Team Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <input type="text" id="empTool" placeholder="Tool / Sim Assigned" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
-                                <button type="submit" id="submitBtn" class="sm:col-span-3 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer">
-                                    Add Member
+                                <input type="text" id="empName" placeholder="Employee Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                
+                                <!-- Team Dropdown List representing all teams -->
+                                <select id="empTeam" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                                    <option value="" disabled selected>Select Team</option>
+                                    <option value="Rigger">Rigger</option>
+                                    <option value="Technician">Technician</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="Engineering">Engineering</option>
+                                    <option value="Logistics">Logistics</option>
+                                </select>
+                                
+                                <input type="text" id="empTool" placeholder="Assigned Tool / SIM / Asset Details" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                <input type="text" id="empSerial" placeholder="SIM or Mobile Serial Number" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                
+                                <button type="submit" id="submitBtn" class="sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer">
+                                    Add Member to Roster
                                 </button>
                             </form>
                         </div>
@@ -95,26 +112,37 @@
                     </div>
                 </div>
 
-                <!-- Table Section with Edit and Remove -->
+                <!-- Action Toolbar for Exporting Data -->
+                <div class="flex flex-wrap gap-2 justify-end bg-white p-4 rounded-xl border border-gray-100 shadow-xs">
+                    <button onclick="exportToExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer transition">
+                        <i class="fa-solid fa-file-excel text-sm"></i> Export to Excel
+                    </button>
+                    <button onclick="exportToPDF()" class="bg-rose-700 hover:bg-rose-800 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer transition">
+                        <i class="fa-solid fa-file-pdf text-sm"></i> Export to PDF
+                    </button>
+                </div>
+
+                <!-- Table Section -->
                 <div class="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
                         <h2 class="text-lg font-semibold text-slate-800">Master Roster</h2>
-                        <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full animate-pulse">
-                            <i class="fa-solid fa-circle text-[8px] mr-1 align-middle"></i> Live Update
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full">
+                            <i class="fa-solid fa-circle text-[8px] mr-1 align-middle animate-pulse text-emerald-600"></i> Live View Protected
                         </span>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
+                        <table class="w-full text-left border-collapse" id="rosterTable">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-600 text-xs font-semibold uppercase tracking-wider border-b border-gray-100">
                                     <th class="px-6 py-3.5">Employee Name (Click to Validate)</th>
                                     <th class="px-6 py-3.5">Team</th>
-                                    <th class="px-6 py-3.5">Assigned Tool/Sim</th>
+                                    <th class="px-6 py-3.5">Assigned Tool/Asset</th>
+                                    <th class="px-6 py-3.5">SIM / Serial Number</th>
                                     <th class="px-6 py-3.5 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="employeeTableBody" class="divide-y divide-gray-100 text-sm">
-                                <!-- Dynamic Rows -->
+                                <!-- Loaded dynamically -->
                             </tbody>
                         </table>
                     </div>
@@ -123,42 +151,43 @@
         </div>
     </div>
 
-    <!-- Validation Click Modal (No duplicate issue) -->
+    <!-- Validation Modal Box -->
     <div id="validationModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 m-4 transform transition-all border border-gray-100">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 m-4 border border-gray-100">
             <div class="flex items-center gap-3 text-emerald-600 mb-4">
-                <div class="p-3 bg-emerald-50 rounded-full text-xl">
-                    <i class="fa-solid fa-shield-check"></i>
-                </div>
-                <h3 class="text-xl font-bold text-slate-800">Employee Validation</h3>
+                <div class="p-3 bg-emerald-50 rounded-full text-xl"><i class="fa-solid fa-shield-check"></i></div>
+                <h3 class="text-xl font-bold text-slate-800">Validation Verified</h3>
             </div>
-            <div id="modalContent" class="space-y-3 my-4 text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-200/60">
-                <!-- Dynamic Content -->
-            </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition text-sm cursor-pointer">
-                    Dismiss
-                </button>
+            <div id="modalContent" class="space-y-3 my-4 text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-200/60"></div>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition text-sm cursor-pointer">Dismiss</button>
             </div>
         </div>
     </div>
 
-    <!-- Script Handling Core logic -->
+    <!-- Duplicate Alert Custom Popup Modal -->
+    <div id="duplicateModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 m-4 border-2 border-amber-500 text-center animate-bounce-short">
+            <div class="text-amber-500 text-4xl mb-2"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 class="text-lg font-bold text-slate-900">Duplicate Asset Detected!</h3>
+            <p id="duplicateModalMessage" class="text-sm text-gray-600 my-3"></p>
+            <button onclick="closeDuplicateModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2 rounded-lg transition text-sm cursor-pointer">Review Configuration</button>
+        </div>
+    </div>
+
     <script>
-        // Initial Mock Data
+        // Default Master Password Set to: "admin123"
+        const SECURE_PASSWORD = "admin123";
+
+        // Initialized Data from your context structures
         let employees = [
-            { name: "Aarav Sharma", team: "Alpha Team", tool: "Simulink-X" },
-            { name: "Zoya Khan", team: "Beta Team", tool: "DevOps Toolkit" },
-            { name: "Rohit Verma", team: "Alpha Team", tool: "CAD Modeler" },
-            { name: "Ananya Iyer", team: "Gamma Team", tool: "Sim-Core 2.0" }
+            { name: "Naveed", team: "Rigger", tool: "Zain SIM", serial: "9665000001" }
         ];
 
         let chartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
             renderDashboard();
-            // Simulating continuous real-time data flow updates safely
-            setInterval(simulateRealTimeActivity, 15000); 
         });
 
         function renderDashboard() {
@@ -180,12 +209,13 @@
                             <i class="fa-solid fa-screwdriver-wrench text-[10px]"></i> ${emp.tool}
                         </span>
                     </td>
+                    <td class="px-6 py-4 font-mono text-gray-600">${emp.serial}</td>
                     <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                        <button onclick="editEmployee(${index})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition inline-flex items-center gap-1 cursor-pointer text-xs font-medium">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        <button onclick="secureAction('edit', ${index})" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition inline-flex items-center gap-1 cursor-pointer text-xs font-medium">
+                            <i class="fa-solid fa-lock text-[10px] opacity-70"></i> <i class="fa-solid fa-pen-to-square"></i> Edit
                         </button>
-                        <button onclick="removeEmployee(${index})" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition inline-flex items-center gap-1 cursor-pointer text-xs font-medium">
-                            <i class="fa-solid fa-trash"></i> Remove
+                        <button onclick="secureAction('remove', ${index})" class="text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition inline-flex items-center gap-1 cursor-pointer text-xs font-medium">
+                            <i class="fa-solid fa-lock text-[10px] opacity-70"></i> <i class="fa-solid fa-trash"></i> Remove
                         </button>
                     </td>
                 `;
@@ -198,153 +228,167 @@
 
         function updateMetrics() {
             document.getElementById("totalCount").innerText = employees.length;
-            const uniqueTools = [...new Set(employees.map(e => e.tool.toLowerCase()))].length;
-            document.getElementById("totalTools").innerText = uniqueTools;
+            document.getElementById("totalTools").innerText = employees.length;
         }
 
+        // Duplicate Check Verification Engine
         function saveEmployee(e) {
             e.preventDefault();
             const index = parseInt(document.getElementById("editIndex").value);
             const name = document.getElementById("empName").value.trim();
             const team = document.getElementById("empTeam").value.trim();
             const tool = document.getElementById("empTool").value.trim();
+            const serial = document.getElementById("empSerial").value.trim();
+
+            // Duplicate Match Scanner
+            let duplicateFound = employees.find((emp, idx) => emp.serial === serial && idx !== index);
+            if (duplicateFound) {
+                showDuplicateModal(`Same device or serial sequence "${serial}" is already registered to ${duplicateFound.name} (${duplicateFound.team}).`);
+                return;
+            }
 
             if(index === -1) {
-                // Add Mode
-                employees.push({ name, team, tool });
+                // Anyone can add new entries instantly
+                employees.push({ name, team, tool, serial });
             } else {
-                // Edit Mode
-                employees[index] = { name, team, tool };
+                // If editing existing item, confirm with absolute update parameters
+                employees[index] = { name, team, tool, serial };
                 document.getElementById("editIndex").value = "-1";
-                document.getElementById("submitBtn").innerText = "Add Member";
-                document.getElementById("submitBtn").className = "sm:col-span-3 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
+                document.getElementById("submitBtn").innerText = "Add Member to Roster";
+                document.getElementById("submitBtn").className = "sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
             }
 
             document.getElementById("employeeForm").reset();
             renderDashboard();
         }
 
-        function editEmployee(index) {
+        // Password Security Layer for Sensitive Changes
+        function secureAction(type, index) {
+            const passInput = prompt("Enter Password to perform this data modification action:");
+            if (passInput === null) return; // Action Cancelled
+            
+            if (passInput === SECURE_PASSWORD) {
+                if (type === 'edit') {
+                    executeEdit(index);
+                } else if (type === 'remove') {
+                    executeRemove(index);
+                }
+            } else {
+                alert("Incorrect Security Authorization Password! Action Denied.");
+            }
+        }
+
+        function executeEdit(index) {
             const emp = employees[index];
             document.getElementById("editIndex").value = index;
             document.getElementById("empName").value = emp.name;
             document.getElementById("empTeam").value = emp.team;
             document.getElementById("empTool").value = emp.tool;
+            document.getElementById("empSerial").value = emp.serial;
 
             const submitBtn = document.getElementById("submitBtn");
-            submitBtn.innerText = "Update Employee Details";
-            submitBtn.className = "sm:col-span-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
-            
-            // Scroll to form smoothly
+            submitBtn.innerText = "Authorize & Save Changes";
+            submitBtn.className = "sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
             document.getElementById("employeeForm").scrollIntoView({ behavior: 'smooth' });
         }
 
-        function removeEmployee(index) {
-            if(confirm(`Are you sure you want to remove ${employees[index].name}?`)) {
-                employees.splice(index, 1);
-                // Reset edit form if editing item was deleted
-                if(parseInt(document.getElementById("editIndex").value) === index) {
-                    document.getElementById("employeeForm").reset();
-                    document.getElementById("editIndex").value = "-1";
-                    document.getElementById("submitBtn").innerText = "Add Member";
-                }
-                renderDashboard();
+        function executeRemove(index) {
+            employees.splice(index, 1);
+            if(parseInt(document.getElementById("editIndex").value) === index) {
+                document.getElementById("employeeForm").reset();
+                document.getElementById("editIndex").value = "-1";
+                document.getElementById("submitBtn").innerText = "Add Member to Roster";
             }
+            renderDashboard();
         }
 
-        // Validation click feature instead of list format
         function validateEmployee(index) {
             const emp = employees[index];
             const modal = document.getElementById("validationModal");
             const content = document.getElementById("modalContent");
-            
             content.innerHTML = `
                 <div class="space-y-2">
-                    <p><strong>Name:</strong> <span class="text-slate-800">${emp.name}</span></p>
-                    <p><strong>Assigned Group:</strong> <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-semibold">${emp.team}</span></p>
-                    <p><strong>Configured Ecosystem:</strong> <span class="text-slate-800 font-mono text-xs">${emp.tool}</span></p>
-                    <div class="pt-2 border-t border-gray-200 mt-2 flex items-center gap-2 text-emerald-600 text-xs font-semibold">
-                        <i class="fa-solid fa-badge-check"></i> Status Verified & Active in Real-time
-                    </div>
+                    <p><strong>Resource Name:</strong> <span class="text-slate-800">${emp.name}</span></p>
+                    <p><strong>Department Unit:</strong> <span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-semibold">${emp.team}</span></p>
+                    <p><strong>Asset Specification:</strong> <span class="text-slate-800">${emp.tool}</span></p>
+                    <p><strong>Tracked Serial / SIM:</strong> <span class="text-slate-800 font-mono">${emp.serial}</span></p>
                 </div>
             `;
             modal.classList.remove("hidden");
         }
 
-        function closeModal() {
-            document.getElementById("validationModal").classList.add("hidden");
+        function closeModal() { document.getElementById("validationModal").classList.add("hidden"); }
+        function showDuplicateModal(msg) {
+            document.getElementById("duplicateModalMessage").innerText = msg;
+            document.getElementById("duplicateModal").classList.remove("hidden");
         }
+        function closeDuplicateModal() { document.getElementById("duplicateModal").classList.add("hidden"); }
 
-        // Search Filter (Fixes search for names, tools, sims)
         function filterEmployees() {
             const query = document.getElementById("searchBar").value.toLowerCase();
             const rows = document.querySelectorAll("#employeeTableBody tr");
-
             rows.forEach((row, idx) => {
                 const emp = employees[idx];
                 if(emp) {
                     const match = emp.name.toLowerCase().includes(query) || 
                                   emp.team.toLowerCase().includes(query) || 
-                                  emp.tool.toLowerCase().includes(query);
+                                  emp.tool.toLowerCase().includes(query) ||
+                                  emp.serial.toLowerCase().includes(query);
                     row.style.display = match ? "" : "none";
                 }
             });
         }
 
-        // Pie Chart Update Engine
+        // Excel Export Logic via SheetJS
+        function exportToExcel() {
+            const formattedData = employees.map(e => ({
+                "Employee Name": e.name,
+                "Team Category": e.team,
+                "Assigned Tool/Asset": e.tool,
+                "SIM / Serial Number": e.serial
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(formattedData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "EMS Roster Data");
+            XLSX.writeFile(workbook, "Employee_Asset_Directory.xlsx");
+        }
+
+        // PDF Export Logic via jsPDF & AutoTable
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Employee Management Master Roster Report", 14, 15);
+            
+            const tableRows = employees.map(e => [e.name, e.team, e.tool, e.serial]);
+            doc.autoTable({
+                head: [['Employee Name', 'Team Group', 'Assigned Asset', 'SIM/Serial Identifer']],
+                body: tableRows,
+                startY: 22
+            });
+            doc.save("Employee_Asset_Directory.pdf");
+        }
+
+        // Pie Chart Generation System
         function updatePieChart() {
             const teamCounts = {};
-            employees.forEach(emp => {
-                teamCounts[emp.team] = (teamCounts[emp.team] || 0) + 1;
-            });
-
+            employees.forEach(emp => { teamCounts[emp.team] = (teamCounts[emp.team] || 0) + 1; });
             const labels = Object.keys(teamCounts);
             const data = Object.values(teamCounts);
-
-            const ctx = document.getElementById('teamChart').getContext('2document.getElementById');
-            
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
-
+            const ctx = document.getElementById('teamChart').getContext('2d');
+            if (chartInstance) { chartInstance.destroy(); }
             if(labels.length === 0) return;
-
             chartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: [
-                            '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'],
+                        borderWidth: 2, borderColor: '#ffffff'
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false } // Hidden text block legends to avoid layout shifts
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-        }
-
-        // Simulate Real-time Data Sync without layout disruption
-        function simulateRealTimeActivity() {
-            if(employees.length > 0 && Math.random() > 0.5) {
-                const randomIdx = Math.floor(Math.random() * employees.length);
-                const toolsList = ["Simulink-X", "DevOps Toolkit", "CAD Modeler", "Sim-Core 2.0", "Cloud-Node Alpha", "Telemetry Sys"];
-                const oldTool = employees[randomIdx].tool;
-                const newTool = toolsList[Math.floor(Math.random() * toolsList.length)];
-                
-                if(oldTool !== newTool) {
-                    employees[randomIdx].tool = newTool;
-                    renderDashboard();
-                }
-            }
         }
     </script>
 </body>
