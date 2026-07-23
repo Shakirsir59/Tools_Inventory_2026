@@ -106,8 +106,8 @@
                                     <option value="Broken">Broken</option>
                                 </select>
                                 
-                                <button type="submit" id="submitBtn" class="sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer">
-                                    Save Record to System
+                                <button type="submit" id="submitBtn" class="sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-lock text-xs"></i> Save Record to System
                                 </button>
                             </form>
                         </div>
@@ -351,7 +351,7 @@
                 tbody.appendChild(row);
             });
 
-            // CRITICAL STEP: Push structural updates straight into active memory cache
+            // Push structural updates straight into active memory cache
             localStorage.setItem('liveInventoryLogs', JSON.stringify(employees));
 
             updateMetrics();
@@ -366,6 +366,16 @@
 
         function saveEmployee(e) {
             e.preventDefault();
+
+            // PASSWORD AUTHENTICATION ADDED FOR SAVING / ADDING NEW ASSET
+            const pass = prompt("Enter administrative Security Password to Add / Save asset record:");
+            if (pass === null) return; // User cancelled prompt
+
+            if (pass !== SECURE_PASSWORD) {
+                alert("Incorrect Password! You are not authorized to add or edit asset records.");
+                return;
+            }
+
             const index = parseInt(document.getElementById("editIndex").value);
             const name = document.getElementById("empName").value.trim();
             const team = document.getElementById("empTeam").value.trim();
@@ -389,38 +399,39 @@
             } else {
                 employees[index] = { name, team, tool, serial, status };
                 document.getElementById("editIndex").value = "-1";
-                document.getElementById("submitBtn").innerText = "Save Record to System";
-                document.getElementById("submitBtn").className = "sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
+                document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Save Record to System`;
+                document.getElementById("submitBtn").className = "sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer flex items-center justify-center gap-2";
             }
 
             document.getElementById("employeeForm").reset();
             renderDashboard();
+            alert("Record successfully saved to system!");
         }
 
         function secureAction(type, index) {
-            const pass = prompt("Enter administrative Security Password for log adjustments:");
-            if (pass === null) return;
-            
-            if (pass === SECURE_PASSWORD) {
-                if (type === 'edit') {
-                    const emp = employees[index];
-                    document.getElementById("editIndex").value = index;
-                    document.getElementById("empName").value = emp.name;
-                    document.getElementById("empTeam").value = emp.team;
-                    document.getElementById("empTool").value = emp.tool;
-                    document.getElementById("empSerial").value = emp.serial;
-                    document.getElementById("empStatus").value = emp.status;
+            if (type === 'edit') {
+                const emp = employees[index];
+                document.getElementById("editIndex").value = index;
+                document.getElementById("empName").value = emp.name;
+                document.getElementById("empTeam").value = emp.team;
+                document.getElementById("empTool").value = emp.tool;
+                document.getElementById("empSerial").value = emp.serial;
+                document.getElementById("empStatus").value = emp.status;
 
-                    const btn = document.getElementById("submitBtn");
-                    btn.innerText = "Authorize & Save Changes";
-                    btn.className = "sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer";
-                    document.getElementById("employeeForm").scrollIntoView({ behavior: 'smooth' });
-                } else if (type === 'remove') {
+                const btn = document.getElementById("submitBtn");
+                btn.innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Authorize & Save Changes`;
+                btn.className = "sm:col-span-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer flex items-center justify-center gap-2";
+                document.getElementById("employeeForm").scrollIntoView({ behavior: 'smooth' });
+            } else if (type === 'remove') {
+                const pass = prompt("Enter administrative Security Password for record removal:");
+                if (pass === null) return;
+                
+                if (pass === SECURE_PASSWORD) {
                     employees.splice(index, 1);
                     renderDashboard();
+                } else {
+                    alert("Incorrect Password! Access denied.");
                 }
-            } else {
-                alert("Incorrect Password! Access denied.");
             }
         }
 
@@ -464,11 +475,18 @@
         }
 
         function resetToSystemDefault() {
-            if(confirm("Attention: This action will restore all original employees & equipment data configurations and clear modifications. Proceed?")) {
-                localStorage.removeItem('liveInventoryLogs');
-                employees = [...defaultDatabase];
-                renderDashboard();
-                alert("Master system default array re-loaded successfully!");
+            const pass = prompt("Enter Security Password to Reset Master Logs:");
+            if (pass === null) return;
+
+            if (pass === SECURE_PASSWORD) {
+                if(confirm("Attention: This action will restore all original employees & equipment data configurations and clear modifications. Proceed?")) {
+                    localStorage.removeItem('liveInventoryLogs');
+                    employees = [...defaultDatabase];
+                    renderDashboard();
+                    alert("Master system default array re-loaded successfully!");
+                }
+            } else {
+                alert("Incorrect Password! Access denied.");
             }
         }
 
