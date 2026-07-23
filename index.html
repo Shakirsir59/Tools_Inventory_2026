@@ -86,8 +86,13 @@
                             </div>
                             <form id="employeeForm" onsubmit="return saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input type="hidden" id="editIndex" value="-1">
-                                <input type="text" id="empName" placeholder="Employee Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
+                                <!-- SELECTIVE EMPLOYEE DROPDOWN VALIDATION -->
+                                <select id="empNameSelect" onchange="handleNameSelectChange()" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                                    <option value="" disabled selected>Select Selective Employee</option>
+                                    <!-- Dynamic Options Load Here -->
+                                </select>
+
                                 <select id="empTeam" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
                                     <option value="" disabled selected>Select Category</option>
                                     <option value="Telecom Hardware">Telecom Hardware</option>
@@ -305,8 +310,38 @@
         let chartInstance = null;
 
         document.addEventListener("DOMContentLoaded", () => {
+            populateEmployeeDropdown();
             renderDashboard();
         });
+
+        function populateEmployeeDropdown() {
+            const select = document.getElementById("empNameSelect");
+            // Unique staff members
+            const uniqueNames = [...new Set(employees.map(e => e.name))];
+            
+            select.innerHTML = '<option value="" disabled selected>Select Selective Employee</option>';
+            uniqueNames.forEach(name => {
+                select.innerHTML += `<option value="${name}">${name}</option>`;
+            });
+            select.innerHTML += '<option value="__ADD_NEW__" class="font-semibold text-emerald-600">+ Add New Employee Name...</option>';
+        }
+
+        function handleNameSelectChange() {
+            const select = document.getElementById("empNameSelect");
+            if (select.value === "__ADD_NEW__") {
+                const newName = prompt("Enter New Employee Full Name:");
+                if (newName && newName.trim() !== "") {
+                    const cleanName = newName.trim();
+                    const option = document.createElement("option");
+                    option.value = cleanName;
+                    option.text = cleanName;
+                    option.selected = true;
+                    select.add(option, select.options[select.options.length - 1]);
+                } else {
+                    select.selectedIndex = 0;
+                }
+            }
+        }
 
         function renderDashboard() {
             const tbody = document.getElementById("employeeTableBody");
@@ -351,11 +386,12 @@
                 tbody.appendChild(row);
             });
 
-            // Push structural updates straight into active memory cache
+            // Save active memory cache
             localStorage.setItem('liveInventoryLogs', JSON.stringify(employees));
 
             updateMetrics();
             updatePieChart();
+            populateEmployeeDropdown();
         }
 
         function updateMetrics() {
@@ -364,46 +400,64 @@
             document.getElementById("totalStaff").innerText = uniqueStaff;
         }
 
-        // ABSOLUTE PASSWORD SECURITY ON ADD / EDIT FORM SUBMISSION
+        // ABSOLUTE PASSWORD SECURITY ON SAVE + INSERT AT SAME EMPLOYEE LOCATION
         function saveEmployee(e) {
             e.preventDefault();
 
-            // 1. Ask for Password IMMEDIATELY on Save Button Click
+            // 1. Ask Password
             const pass = prompt("Security Check: Enter Admin Password to Save/Add this Tool:");
-            
-            // 2. If Cancelled or Incorrect Password -> BLOCK EVERYTHING
-            if (pass === null) {
+            if (pass === null || pass !== SECURE_PASSWORD) {
+                if (pass !== null) alert("Incorrect Password! Action blocked.");
                 return false;
             }
 
-            if (pass !== SECURE_PASSWORD) {
-                alert("Incorrect Password! Action blocked.");
-                return false;
-            }
-
-            // 3. Process Save ONLY if Password is Correct
+            // 2. Form Data
             const index = parseInt(document.getElementById("editIndex").value);
-            const name = document.getElementById("empName").value.trim();
+            const name = document.getElementById("empNameSelect").value;
             const team = document.getElementById("empTeam").value.trim();
             const tool = document.getElementById("empTool").value.trim();
             const serial = document.getElementById("empSerial").value.trim();
             const status = document.getElementById("empStatus").value.trim();
 
+            if(!name || name === "__ADD_NEW__") {
+                alert("Please select a valid employee!");
+                return false;
+            }
+
+            // Duplicate Check
             const lowerTool = tool.toLowerCase();
             const isCriticalHardware = lowerTool.includes('sim') || lowerTool.includes('book') || lowerTool.includes('laptop') || lowerTool.includes('p40') || lowerTool.includes('s9') || lowerTool.includes('s22') || lowerTool.includes('s23') || lowerTool.includes('note');
 
             if (isCriticalHardware && serial.length > 3 && serial.toLowerCase() !== 'rohs') {
                 let duplicate = employees.find((emp, idx) => emp.serial.toLowerCase() === serial.toLowerCase() && idx !== index);
                 if (duplicate) {
-                    showDuplicateModal(`Hardware Serial ID Configuration Conflict! The unique ID "${serial}" is already tracked to "${duplicate.name}" for item "${duplicate.tool}".`);
+                    showDuplicateModal(`Hardware Serial ID Conflict! Serial "${serial}" is already tracked to "${duplicate.name}" for item "${duplicate.tool}".`);
                     return false;
                 }
             }
 
+            const newRecord = { name, team, tool, serial, status };
+
             if(index === -1) {
-                employees.push({ name, team, tool, serial, status });
+                // FIND LAST INDEX OF THIS EMPLOYEE TO INSERT DIRECTLY BELOW THEM
+                let lastIndexForEmp = -1;
+                for (let i = employees.length - 1; i >= 0; i--) {
+                    if (employees[i].name.toLowerCase() === name.toLowerCase()) {
+                        lastIndexForEmp = i;
+                        break;
+                    }
+                }
+
+                if (lastIndexForEmp !== -1) {
+                    // Insert right after the last tool of this employee
+                    employees.splice(lastIndexForEmp + 1, 0, newRecord);
+                } else {
+                    // If new employee, add to bottom
+                    employees.push(newRecord);
+                }
             } else {
-                employees[index] = { name, team, tool, serial, status };
+                // Edit existing record
+                employees[index] = newRecord;
                 document.getElementById("editIndex").value = "-1";
                 document.getElementById("submitBtn").innerHTML = `<i class="fa-solid fa-lock text-xs"></i> Save Record to System`;
                 document.getElementById("submitBtn").className = "sm:col-span-2 bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 rounded-lg transition text-sm cursor-pointer flex items-center justify-center gap-2";
@@ -411,7 +465,7 @@
 
             document.getElementById("employeeForm").reset();
             renderDashboard();
-            alert("Record successfully saved to system!");
+            alert("Record successfully saved directly under " + name + "'s list!");
             return false;
         }
 
@@ -419,7 +473,7 @@
             if (type === 'edit') {
                 const emp = employees[index];
                 document.getElementById("editIndex").value = index;
-                document.getElementById("empName").value = emp.name;
+                document.getElementById("empNameSelect").value = emp.name;
                 document.getElementById("empTeam").value = emp.team;
                 document.getElementById("empTool").value = emp.tool;
                 document.getElementById("empSerial").value = emp.serial;
