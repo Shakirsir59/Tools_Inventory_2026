@@ -84,7 +84,7 @@
                                     Reset Master Logs
                                 </button>
                             </div>
-                            <form id="employeeForm" onsubmit="saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <form id="employeeForm" onsubmit="return saveEmployee(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <input type="hidden" id="editIndex" value="-1">
                                 <input type="text" id="empName" placeholder="Employee Full Name" required class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 
@@ -364,18 +364,24 @@
             document.getElementById("totalStaff").innerText = uniqueStaff;
         }
 
+        // ABSOLUTE PASSWORD SECURITY ON ADD / EDIT FORM SUBMISSION
         function saveEmployee(e) {
             e.preventDefault();
 
-            // PASSWORD AUTHENTICATION ADDED FOR SAVING / ADDING NEW ASSET
-            const pass = prompt("Enter administrative Security Password to Add / Save asset record:");
-            if (pass === null) return; // User cancelled prompt
-
-            if (pass !== SECURE_PASSWORD) {
-                alert("Incorrect Password! You are not authorized to add or edit asset records.");
-                return;
+            // 1. Ask for Password IMMEDIATELY on Save Button Click
+            const pass = prompt("Security Check: Enter Admin Password to Save/Add this Tool:");
+            
+            // 2. If Cancelled or Incorrect Password -> BLOCK EVERYTHING
+            if (pass === null) {
+                return false;
             }
 
+            if (pass !== SECURE_PASSWORD) {
+                alert("Incorrect Password! Action blocked.");
+                return false;
+            }
+
+            // 3. Process Save ONLY if Password is Correct
             const index = parseInt(document.getElementById("editIndex").value);
             const name = document.getElementById("empName").value.trim();
             const team = document.getElementById("empTeam").value.trim();
@@ -390,7 +396,7 @@
                 let duplicate = employees.find((emp, idx) => emp.serial.toLowerCase() === serial.toLowerCase() && idx !== index);
                 if (duplicate) {
                     showDuplicateModal(`Hardware Serial ID Configuration Conflict! The unique ID "${serial}" is already tracked to "${duplicate.name}" for item "${duplicate.tool}".`);
-                    return;
+                    return false;
                 }
             }
 
@@ -406,6 +412,7 @@
             document.getElementById("employeeForm").reset();
             renderDashboard();
             alert("Record successfully saved to system!");
+            return false;
         }
 
         function secureAction(type, index) {
