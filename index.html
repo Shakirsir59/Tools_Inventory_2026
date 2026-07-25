@@ -51,7 +51,7 @@
                 
                 <div class="flex items-center gap-3">
                     <button onclick="autoUploadInitialExcelData()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> ⚡ Sync 105 Excel Records to Cloud
+                        <i class="fa-solid fa-cloud-arrow-up"></i> ⚡ Sync 105 Correct Excel Records
                     </button>
                     <!-- Search Bar -->
                     <div class="relative w-full sm:w-64">
@@ -121,7 +121,7 @@
                                 
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-600 mb-1">Model / Tool Name</label>
-                                    <input type="text" id="empTool" placeholder="e.g. Spanner 13, Zain SIM" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                                    <input type="text" id="empTool" placeholder="e.g. Spanner, Zain SIM" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
                                 </div>
 
                                 <div>
@@ -232,7 +232,7 @@
             renderDashboard();
         });
 
-        // FULL 105 EXCEL RECORDS DATASET
+        // VERIFIED 100% MATCHED EXCEL DATASET (105 ITEMS)
         const excelFullDataset = [
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T3F", "status": "Available"},
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
@@ -248,8 +248,8 @@
             {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448050", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T82", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
+            {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "HP Laptop Charger", "serial": "4CH24205WF", "status": "Available"},
-            {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448981", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448083", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446845", "status": "Available"},
@@ -270,8 +270,8 @@
             {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Screw Driver Set", "serial": "1", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T8B", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
+            {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592447952", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448051", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Mobily SIM", "serial": "8996632412213702509", "status": "Available"},
@@ -291,8 +291,8 @@
             {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Adjustable Wrench", "serial": "1", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T21", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
+            {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448082", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446759", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Mobily SIM", "serial": "8996632412213702525", "status": "Available"},
@@ -313,18 +313,18 @@
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T80", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Available"},
+            {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446757", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448081", "status": "Available"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T30", "status": "Available"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Available"},
+            {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592447953", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T91", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
+            {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446844", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448080", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "STC SIM", "serial": "8996612042211756590", "status": "Available"},
@@ -342,10 +342,10 @@
         ];
 
         function autoUploadInitialExcelData() {
-            const pass = prompt("Enter Admin Password to Sync 105 Excel Records to Cloud Database:");
+            const pass = prompt("Enter Admin Password to Sync 105 Verified Excel Records:");
             if (pass === SECURE_PASSWORD) {
                 db.ref('inventory').set(excelFullDataset).then(() => {
-                    alert("Success! All 105 Excel records uploaded to Firebase Cloud Database!");
+                    alert("Success! 105 Correct Excel Records loaded into Cloud Database!");
                 }).catch((err) => {
                     alert("Error uploading: " + err.message);
                 });
