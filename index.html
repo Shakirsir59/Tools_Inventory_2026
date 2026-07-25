@@ -51,7 +51,7 @@
                 
                 <div class="flex items-center gap-3">
                     <button onclick="autoUploadInitialExcelData()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> ⚡ Sync 105 Correct Excel Records
+                        <i class="fa-solid fa-cloud-arrow-up"></i> ⚡ Sync 106 CSV Records
                     </button>
                     <!-- Search Bar -->
                     <div class="relative w-full sm:w-64">
@@ -232,23 +232,23 @@
             renderDashboard();
         });
 
-        // VERIFIED 100% MATCHED EXCEL DATASET (105 ITEMS)
+        // 106 RECORDS MATCHED FROM YOUR CSV FILE
         const excelFullDataset = [
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T3F", "status": "Available"},
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "HP Laptop Charger", "serial": "4CH24205WL", "status": "Available"},
-            {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446843", "status": "Available"},
             {"name": "Majid Mubarak Mohammed", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448980", "status": "Available"},
             {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T85", "status": "Available"},
             {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
             {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446758", "status": "Available"},
             {"name": "Amer Mohammed", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448050", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T82", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "HP Laptop Charger", "serial": "4CH24205WF", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448981", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448083", "status": "Available"},
@@ -261,16 +261,17 @@
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Test Mobile Samsung A15", "serial": "R5CX108BLNE", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Telecom Hardware", "tool": "Inverter 1000W", "serial": "1", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Safety Helmet", "serial": "1", "status": "Available"},
-            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Available"},
+            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Safety Vest", "serial": "1", "status": "Need"},
+            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Need"},
             {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Fall Arrester", "serial": "1", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Safety Rope (30m)", "serial": "1", "status": "Available"},
             {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Work Gloves", "serial": "1", "status": "Available"},
-            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Available"},
-            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Adjustable Wrench", "serial": "1", "status": "Available"},
-            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Screw Driver Set", "serial": "1", "status": "Available"},
+            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Need"},
+            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Spanner 13, 17, 19, 24", "serial": "4", "status": "Need"},
+            {"name": "Yasir Nadeem", "team": "Rigger Safety", "tool": "Adjustable Wrench 12\"", "serial": "1", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T8B", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
-            {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592447952", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448051", "status": "Available"},
@@ -282,16 +283,17 @@
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Test Mobile Samsung A15", "serial": "R5CX108BM4M", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Telecom Hardware", "tool": "Inverter 1000W", "serial": "1", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Safety Helmet", "serial": "1", "status": "Available"},
-            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Available"},
+            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Safety Vest", "serial": "1", "status": "Available"},
+            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Need"},
             {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Fall Arrester", "serial": "1", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Safety Rope (30m)", "serial": "1", "status": "Available"},
             {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Work Gloves", "serial": "1", "status": "Available"},
-            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Available"},
-            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Spanner Set", "serial": "1", "status": "Available"},
-            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Adjustable Wrench", "serial": "1", "status": "Available"},
+            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Need"},
+            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Spanner 13, 17, 19, 24", "serial": "4", "status": "Need"},
+            {"name": "Saeed Iqbal", "team": "Rigger Safety", "tool": "Adjustable Wrench 12\"", "serial": "1", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T21", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448082", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446759", "status": "Available"},
@@ -302,29 +304,30 @@
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Test Mobile Samsung A15", "serial": "R5CX108BLNW", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Telecom Hardware", "tool": "Inverter 1000W", "serial": "1", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Safety Helmet", "serial": "1", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Available"},
+            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Safety Vest", "serial": "1", "status": "Available"},
+            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Need"},
             {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Fall Arrester", "serial": "1", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Safety Rope (30m)", "serial": "1", "status": "Available"},
             {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Work Gloves", "serial": "1", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Spanner Set", "serial": "1", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Adjustable Wrench", "serial": "1", "status": "Available"},
-            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Tool Bag", "serial": "1", "status": "Available"},
+            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Need"},
+            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Spanner 13, 17, 19, 24", "serial": "4", "status": "Need"},
+            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Adjustable Wrench 12\"", "serial": "1", "status": "Available"},
+            {"name": "Muhammad Sajawal", "team": "Rigger Safety", "tool": "Tools Bag", "serial": "1", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T80", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446757", "status": "Available"},
             {"name": "Fuaad Alnakhli", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448081", "status": "Available"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T30", "status": "Available"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
-            {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
+            {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "HP Bag", "serial": "1", "status": "Need"},
             {"name": "Majed AlHarbi", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592447953", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "HP Z Book", "serial": "5CG2421T91", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "65W Charger", "serial": "1", "status": "Available"},
-            {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Laptop Bag", "serial": "1", "status": "Need"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Ethernet Type C", "serial": "ROHS", "status": "Available"},
+            {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Tools Bag", "serial": "1", "status": "Need"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592446844", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Zain SIM", "serial": "592448080", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "STC SIM", "serial": "8996612042211756590", "status": "Available"},
@@ -332,20 +335,23 @@
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Test Mobile Samsung A15", "serial": "R5CX108C76D", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Inverter 1000W", "serial": "1", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Telecom Hardware", "tool": "Compass", "serial": "1", "status": "Available"},
-            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Safety Helmet", "serial": "1", "status": "Available"},
-            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Available"},
+            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Safety Helmet", "serial": "1", "status": "Need"},
+            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Safety Vest", "serial": "1", "status": "Available"},
+            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Full Body Harness", "serial": "1", "status": "Need"},
             {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Fall Arrester", "serial": "1", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Safety Rope (30m)", "serial": "1", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Work Gloves", "serial": "1", "status": "Available"},
             {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Safety Shoes", "serial": "1", "status": "Available"},
-            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Tool Bag", "serial": "1", "status": "Available"}
+            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Spanner 13, 17, 19, 24", "serial": "4", "status": "Need"},
+            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Adjustable Wrench 12\"", "serial": "1", "status": "Available"},
+            {"name": "Naveed Ahmad", "team": "Rigger Safety", "tool": "Tools Bag", "serial": "1", "status": "Available"}
         ];
 
         function autoUploadInitialExcelData() {
-            const pass = prompt("Enter Admin Password to Sync 105 Verified Excel Records:");
+            const pass = prompt("Enter Admin Password to Sync 106 CSV Records:");
             if (pass === SECURE_PASSWORD) {
                 db.ref('inventory').set(excelFullDataset).then(() => {
-                    alert("Success! 105 Correct Excel Records loaded into Cloud Database!");
+                    alert("Success! 106 Records loaded into Cloud Database!");
                 }).catch((err) => {
                     alert("Error uploading: " + err.message);
                 });
@@ -393,7 +399,7 @@
             tbody.innerHTML = "";
 
             if(employees.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No Inventory Records Found in Cloud. Click top button to Sync Excel Data.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No Inventory Records Found in Cloud. Click top button to Sync CSV Data.</td></tr>`;
             }
 
             employees.forEach((emp, index) => {
